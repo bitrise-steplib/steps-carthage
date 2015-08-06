@@ -1,5 +1,5 @@
 name: "Carthage bootstrapper"
-description: "Installs and updates Carthage to the latest available version and runs Carthage's bootstrap`.
+description: "Installs and updates Carthage to the latest available version and runs Carthage's `bootstrap`.
   For more information about Carthage, visit the [Carthage GitHub page](https://github.com/Carthage/Carthage)."
 website: https://github.com/vasarhelyia/steps-carthage
 fork_url: https://github.com/vasarhelyia/steps-carthage
@@ -14,10 +14,11 @@ type_tags:
   - system
 is_requires_admin_user: false
 inputs:
-  - project_dir:
-    opts:
-      title: "Project directory path"
-      description: |
-        Path to the root folder of the project.
-      is_required: true
-      is_expand: true
+  -
+    mapped_to: project_dir
+    title: "Project directory path"
+    description: |
+      Path to the root folder of the project.
+    is_required: true
+    is_expand: true
+outputs: []
