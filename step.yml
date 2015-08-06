@@ -13,3 +13,12 @@ type_tags:
   - carthage
   - system
 is_requires_admin_user: false
+inputs:
+  - project_dir:
+    opts:
+      title: "Project directory path"
+      description: |
+        Path to the root folder of the project.
+      is_required: true
+      is_expand: true
+outputs:[]
