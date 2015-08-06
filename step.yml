@@ -1,0 +1,15 @@
+title: Carthage bootstrapper
+summary: Installs and updates Carthage to the latest available version and runs Carthage's bootstrap`.
+  For more information about Carthage, visit the [Carthage GitHub page](https://github.com/Carthage/Carthage).
+website: https://github.com/vasarhelyia/steps-carthage
+fork_url: https://github.com/vasarhelyia/steps-carthage
+source:
+  git: https://github.com/vasarhelyia/steps-carthage.git
+host_os_tags:
+  - "osx-10.10"
+project_type_tags:
+  - ios
+type_tags:
+  - carthage
+  - system
+is_requires_admin_user: false
