@@ -1,5 +1,5 @@
-title: Carthage bootstrapper
-summary: Installs and updates Carthage to the latest available version and runs Carthage's bootstrap`.
+name: Carthage bootstrapper
+description: Installs and updates Carthage to the latest available version and runs Carthage's bootstrap`.
   For more information about Carthage, visit the [Carthage GitHub page](https://github.com/Carthage/Carthage).
 website: https://github.com/vasarhelyia/steps-carthage
 fork_url: https://github.com/vasarhelyia/steps-carthage
