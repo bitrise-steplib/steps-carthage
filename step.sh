@@ -1,23 +1,17 @@
 #!/bin/bash
 
-set -e
+set -x
 
-#
-# Required parameters
-if [ -z "${project_dir}" ] ; then
-	echo "[!] Missing required input: project_dir"
-	exit 1
-fi
+NO_USE_BINARIES=""
 
 #
 # Make sure brew has Carthage installed
-brew update
-brew install carthage
+brew update && brew install carthage
 
-pushd "${project_dir}"
+if [ $no_use_binaries == 1 ]; then
+	$"NO_USE_BINARIES"="--no-use-binaries"
+fi
 
 #
 # Bootstrap
-carthage bootstrap --platform iOS
-
-popd
+carthage $"carthage_command" --platform iOS $"NO_USE_BINARIES"
