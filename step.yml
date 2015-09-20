@@ -1,5 +1,5 @@
-name: "Carthage bootstrapper"
-description: "Installs and updates Carthage to the latest available version and runs Carthage's `bootstrap`.
+name: "Carthage"
+description: "Installs and updates Carthage to the latest available version and runs selected Carthage command.
   For more information about Carthage, visit the [Carthage GitHub page](https://github.com/Carthage/Carthage)."
 website: https://github.com/vasarhelyia/steps-carthage
 fork_url: https://github.com/vasarhelyia/steps-carthage
@@ -14,12 +14,20 @@ type_tags:
   - system
 is_requires_admin_user: false
 inputs:
-  -
-    mapped_to: project_dir
-    title: "Project directory path"
-    description: |
-      Path to the root folder of the project.
-    value: $BITRISE_SOURCE_DIR
-    is_required: true
-    is_expand: true
-outputs: []
+  - carthage_command:
+    opts:
+      title: "Carthage command to run"
+      description: |
+        Select a command to set up your dependencies with.
+        * `bootstrap`: initializes the project with checking out & building all dependencies.
+        * `update`: updates all dependencies.
+        * `build`: builds all checked out items.
+      summary: ""
+      value_options: ["bootstrap", "update", "build"]
+  - no_use_binaries:
+    opts:
+      title: "Set no use binaries flag"
+      description: |
+        Use this flag to make sure Carthage checks out all dependencies (otherwise it defaults to binary framework releases).
+      value_options: [1, 0]
+      summary: ""
