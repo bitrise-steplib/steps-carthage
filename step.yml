@@ -14,20 +14,20 @@ type_tags:
   - system
 is_requires_admin_user: false
 inputs:
-  - carthage_command:
+  - carthage_command: "bootstrap"
     opts:
       title: "Carthage command to run"
       description: |
         Select a command to set up your dependencies with.
-        * `bootstrap`: initializes the project with checking out & building all dependencies.
+        * `bootstrap`: initializes the project with checking out & building all dependencies. (default)
         * `update`: updates all dependencies.
         * `build`: builds all checked out items.
       summary: ""
       value_options: ["bootstrap", "update", "build"]
-  - no_use_binaries:
+  - no_use_binaries: "false"
     opts:
       title: "Set no use binaries flag"
       description: |
-        Use this flag to make sure Carthage checks out all dependencies (otherwise it defaults to binary framework releases).
-      value_options: ["1", "0"]
+        Use this flag to make sure Carthage checks out all dependencies (otherwise it defaults to binary framework releases). False by default.
+      value_options: ["true", "false"]
       summary: ""
