@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -e
 
 NO_USE_BINARIES=""
 
@@ -8,7 +8,7 @@ NO_USE_BINARIES=""
 # Make sure brew has Carthage installed
 brew update && brew install carthage
 
-if [ $no_use_binaries == "1" ]; then
+if [ $"no_use_binaries" == "1" ]; then
 	$"NO_USE_BINARIES"="--no-use-binaries"
 fi
 
