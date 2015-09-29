@@ -11,6 +11,9 @@ type_tags:
   - carthage
   - system
 is_requires_admin_user: false
+dependencies:
+  - manager: brew
+    name: carthage
 inputs:
   - carthage_command: "bootstrap"
     opts:
