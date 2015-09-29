@@ -1,4 +1,4 @@
-name: "Carthage"
+title: "Carthage"
 description: "Installs and updates Carthage to the latest available version and runs selected Carthage command.
   For more information about Carthage, visit the [Carthage GitHub page](https://github.com/Carthage/Carthage)."
 website: https://github.com/vasarhelyia/steps-carthage
