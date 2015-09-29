@@ -29,5 +29,5 @@ inputs:
       title: "Set no use binaries flag"
       description: |
         Use this flag to make sure Carthage checks out all dependencies (otherwise it defaults to binary framework releases).
-      value_options: [1, 0]
+      value_options: ["1", "0"]
       summary: ""
