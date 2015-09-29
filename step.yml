@@ -3,8 +3,6 @@ description: "Installs and updates Carthage to the latest available version and 
   For more information about Carthage, visit the [Carthage GitHub page](https://github.com/Carthage/Carthage)."
 website: https://github.com/vasarhelyia/steps-carthage
 fork_url: https://github.com/vasarhelyia/steps-carthage
-source:
-  git: https://github.com/vasarhelyia/steps-carthage.git
 host_os_tags:
   - "osx-10.10"
 project_type_tags:
