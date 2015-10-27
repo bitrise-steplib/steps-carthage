@@ -57,3 +57,9 @@ inputs:
       value_options:
       - "default"
       - "0.9.4"
+  - working_dir:
+    opts:
+      title: "Working directory"
+      description: |
+        This directory will be set as the current working
+        directory for the carthage command.
