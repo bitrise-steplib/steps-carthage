@@ -44,3 +44,11 @@ inputs:
       value_options:
       - "true"
       - "false"
+  - verbose_output: "false"
+    opts:
+      title: Set verbose output flag
+      summary: |-
+        Use this flag to have a verbose output of the carthage command. False by default.
+      value_options:
+      - "true"
+      - "false"
