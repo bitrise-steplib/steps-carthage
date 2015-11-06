@@ -22,7 +22,7 @@ else
 fi
 
 if [ ! -z "${working_dir}" ] ; then
-	debug_echo "==> Switching to working directory: ${working_dir}"
+	echo "==> Switching to working directory: ${working_dir}"
 	cd "${working_dir}"
 	if [ $? -ne 0 ] ; then
 		echo " [!] Failed to switch to working directory: ${working_dir}"
