@@ -49,14 +49,6 @@ inputs:
       value_options:
       - "true"
       - "false"
-  - carthage_version: "default"
-    opts:
-      title: Carthage version
-      summary: |-
-        Specify system default, or latest (0.9.4) Carthage to use
-      value_options:
-      - "default"
-      - "0.9.4"
   - working_dir:
     opts:
       title: "Working directory"
