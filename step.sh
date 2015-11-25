@@ -13,13 +13,7 @@ if [[ "${verbose_output}" == "true" ]] ; then
 	VERBOSE_MODE='--verbose'
 fi
 
-if [[ "${carthage_version}" == "0.9.4" ]] ; then
-	curl -OlL "https://github.com/Carthage/Carthage/releases/download/0.9.4/Carthage.pkg"
-	sudo installer -pkg "Carthage.pkg" -target /
-	rm "Carthage.pkg"
-else
-	brew update && brew install carthage
-fi
+brew update && brew install carthage
 
 if [ ! -z "${working_dir}" ] ; then
 	echo "==> Switching to working directory: ${working_dir}"
