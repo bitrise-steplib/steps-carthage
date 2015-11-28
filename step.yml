@@ -55,3 +55,12 @@ inputs:
       description: |
         This directory will be set as the current working
         directory for the carthage command.
+  - platform: "iOS"
+    opts:
+      title: "Platform"
+      description: |
+        Choose which platform to build your dependencies for.
+      value_options:
+      - "iOS"
+      - "Mac"
+      - "iOS, Mac"
