@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 NO_USE_BINARIES=""
 VERBOSE_MODE=""
@@ -26,4 +26,4 @@ fi
 
 #
 # Run carthage command
-carthage "${carthage_command}" --"${platform}" ${NO_USE_BINARIES} ${VERBOSE_MODE}
+carthage "${carthage_command}" --platform "${platform}" ${NO_USE_BINARIES} ${VERBOSE_MODE}
