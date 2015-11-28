@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 NO_USE_BINARIES=""
 VERBOSE_MODE=""
