@@ -25,5 +25,5 @@ if [ ! -z "${working_dir}" ] ; then
 fi
 
 #
-# Bootstrap
-carthage "${carthage_command}" --platform iOS ${NO_USE_BINARIES} ${VERBOSE_MODE}
+# Run carthage command
+carthage "${carthage_command}" --platform "${platform}" ${NO_USE_BINARIES} ${VERBOSE_MODE}
