@@ -26,4 +26,4 @@ fi
 
 #
 # Run carthage command
-carthage "${carthage_command}" --"${platform}" iOS ${NO_USE_BINARIES} ${VERBOSE_MODE}
+carthage "${carthage_command}" --"${platform}" ${NO_USE_BINARIES} ${VERBOSE_MODE}
