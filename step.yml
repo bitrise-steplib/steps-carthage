@@ -49,14 +49,14 @@ inputs:
       value_options:
       - "true"
       - "false"
- - ssh_output: "false"
-   opts:
-     title: Set ssh flag
-     summary: |-
-       Use this flag to use ssh when cloning the repos. False by default.
-     value_options:
-     - "true"
-     - "false"
+  - ssh_output: "false"
+    opts:
+      title: Set ssh flag
+      summary: |-
+        Use this flag to use ssh when cloning the repos. False by default.
+      value_options:
+      - "true"
+      - "false"
   - working_dir:
     opts:
       title: "Working directory"
