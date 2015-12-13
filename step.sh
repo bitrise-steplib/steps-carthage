@@ -4,6 +4,7 @@ set -e
 
 NO_USE_BINARIES=""
 VERBOSE_MODE=""
+SSH_MODE=""
 
 if [[ "${no_use_binaries}" == "true" ]] ; then
 	NO_USE_BINARIES='--no-use-binaries'
@@ -11,6 +12,10 @@ fi
 
 if [[ "${verbose_output}" == "true" ]] ; then
 	VERBOSE_MODE='--verbose'
+fi
+
+if [[ "${ssh_output}" == "true" ]] ; then
+	SSH_MODE='--use-ssh'
 fi
 
 brew update && brew install carthage
@@ -26,4 +31,4 @@ fi
 
 #
 # Run carthage command
-carthage "${carthage_command}" --platform "${platform}" ${NO_USE_BINARIES} ${VERBOSE_MODE}
+carthage "${carthage_command}" --platform "${platform}" ${NO_USE_BINARIES} ${VERBOSE_MODE} ${SSH_MODE}
