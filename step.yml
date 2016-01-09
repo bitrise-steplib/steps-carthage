@@ -72,3 +72,10 @@ inputs:
       - "iOS"
       - "Mac"
       - "iOS,Mac"
+  - carthage_options:
+    opts:
+      title: Additional options for `carthage` command
+      description: |-
+        Options added to the end of the Carthage call.
+        You can use multiple options, separated by a space
+        character.

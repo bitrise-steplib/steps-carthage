@@ -31,4 +31,4 @@ fi
 
 #
 # Run carthage command
-carthage "${carthage_command}" --platform "${platform}" ${NO_USE_BINARIES} ${VERBOSE_MODE} ${SSH_MODE}
+carthage "${carthage_command}" --platform "${platform}" ${NO_USE_BINARIES} ${VERBOSE_MODE} ${SSH_MODE} ${carthage_options}
