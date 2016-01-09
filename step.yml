@@ -19,7 +19,7 @@ is_always_run: false
 is_skippable: false
 run_if: ""
 inputs:
-  - carthage_command: "bootstrap"
+  - carthage_command: "update"
     opts:
       title: Carthage command to run
       summary: Select a command to set up your dependencies with.
