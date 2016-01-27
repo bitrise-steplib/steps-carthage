@@ -72,6 +72,8 @@ inputs:
       - "iOS"
       - "Mac"
       - "iOS,Mac"
+      - "tvOS"
+      - "all"
   - carthage_options:
     opts:
       title: Additional options for `carthage` command
