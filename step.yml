@@ -16,7 +16,7 @@ type_tags:
   - system
 deps:
   brew:
-  name: carthage
+  - name: carthage
 is_requires_admin_user: false
 is_always_run: false
 is_skippable: false
