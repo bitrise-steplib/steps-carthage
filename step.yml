@@ -14,6 +14,9 @@ project_type_tags:
 type_tags:
   - carthage
   - system
+dependencies:
+- manager: brew
+  name: carthage
 is_requires_admin_user: false
 is_always_run: false
 is_skippable: false
