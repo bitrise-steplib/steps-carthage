@@ -18,8 +18,6 @@ if [[ "${ssh_output}" == "true" ]] ; then
 	SSH_MODE='--use-ssh'
 fi
 
-brew update && brew install carthage
-
 if [ ! -z "${working_dir}" ] ; then
 	echo "==> Switching to working directory: ${working_dir}"
 	cd "${working_dir}"
