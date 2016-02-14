@@ -38,17 +38,17 @@ if let workingDir = env["working_dir"] as String! {
 }
 
 if let carthageCommand = env["carthage_command"] {
-  let command = "carthage \(carthageCommand)"
-  let args = " " + ( collectArgs(env).map { "--\($0)" } ).joinWithSeparator(" ")
+    let command = "carthage \(carthageCommand)"
+    let args = " " + ( collectArgs(env).map { "--\($0)" } ).joinWithSeparator(" ")
 
-  task.launchPath = "/bin/bash"
-  task.arguments = ["-c", command + args]
+    task.launchPath = "/bin/bash"
+    task.arguments = ["-c", command + args]
 
-  // run the shell command
-  task.launch()
+    // run the shell command
+    task.launch()
 
-  // ensure to be finished before another command can run
-  task.waitUntilExit()
+    // ensure to be finished before another command can run
+    task.waitUntilExit()
 } else {
-  fatalError("no command to execute")
+    fatalError("no command to execute")
 }
