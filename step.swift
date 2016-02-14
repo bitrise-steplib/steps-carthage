@@ -23,10 +23,6 @@ func collectArgs(env: [String : String]) -> ArgsArray {
         args.append("use-ssh")
     }
 
-    if let carthageOptions = env["carthage_options"] {
-        args.append(carthageOptions)
-    }
-
     return args
 }
 
@@ -39,7 +35,11 @@ if let workingDir = env["working_dir"] as String! {
 
 if let carthageCommand = env["carthage_command"] {
     let command = "carthage \(carthageCommand)"
-    let args = " " + ( collectArgs(env).map { "--\($0)" } ).joinWithSeparator(" ")
+    var args = " " + ( collectArgs(env).map { "--\($0)" } ).joinWithSeparator(" ")
+
+    if let carthageOptions = env["carthage_options"] {
+        args += " " + carthageOptions
+    }
 
     task.launchPath = "/bin/bash"
     task.arguments = ["-c", command + args]
