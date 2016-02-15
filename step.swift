@@ -8,19 +8,23 @@ func collectArgs(env: [String : String]) -> ArgsArray {
     var args = ArgsArray()
 
     if let platform = env["platform"] {
-        args.append("platform " + platform)
+        args.append("--platform " + platform)
     }
 
     if let verboseOutput = env["verbose_output"] where verboseOutput == "true" {
-        args.append("verbose")
+        args.append("--verbose")
     }
 
     if let noUseBinaries = env["no_use_binaries"] where noUseBinaries == "true" {
-        args.append("no-use-binaries")
+        args.append("--no-use-binaries")
     }
 
     if let sshOutput = env["ssh_output"] where sshOutput == "true" {
-        args.append("use-ssh")
+        args.append("--use-ssh")
+    }
+
+    if let carthageOptions = env["carthage_options"] {
+        args.append(carthageOptions)
     }
 
     return args
@@ -38,14 +42,9 @@ guard let carthageCommand = env["carthage_command"] else {
 }
 
 let command = "carthage \(carthageCommand)"
-var args = " " + ( collectArgs(env).map { "--\($0)" } ).joinWithSeparator(" ")
-
-if let carthageOptions = env["carthage_options"] {
-    args += " " + carthageOptions
-}
 
 task.launchPath = "/bin/bash"
-task.arguments = ["-c", command + args]
+task.arguments = ["-c", command] + collectArgs(env)
 
 // run the shell command
 task.launch()
