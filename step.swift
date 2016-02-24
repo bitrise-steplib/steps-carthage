@@ -46,6 +46,8 @@ let command = "carthage \(carthageCommand)"
 task.launchPath = "/bin/bash"
 task.arguments = ["-c", command] + collectArgs(env)
 
+print("Running carthage command: \(task.arguments!.reduce("") { str, arg in str + "\(arg) " })")
+
 // run the shell command
 task.launch()
 
