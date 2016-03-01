@@ -42,14 +42,15 @@ guard let carthageCommand = env["carthage_command"] else {
 }
 
 let command = "carthage \(carthageCommand)"
+var args = " " + ( collectArgs(env).map { "\($0)" } ).joinWithSeparator(" ")
 
 task.launchPath = "/bin/bash"
-task.arguments = ["-c", command] + collectArgs(env)
+task.arguments = ["-c", command + args]
 
 print("Running carthage command: \(task.arguments!.reduce("") { str, arg in str + "\(arg) " })")
 
 // run the shell command
 task.launch()
-
-// ensure to be finished before another command can run
+//
+// // ensure to be finished before another command can run
 task.waitUntilExit()
