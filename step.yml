@@ -60,7 +60,7 @@ inputs:
       value_options:
       - "true"
       - "false"
-  - working_dir:
+  - working_dir: $BITRISE_SOURCE_DIR
     opts:
       title: "Working directory"
       description: |
