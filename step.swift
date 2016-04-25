@@ -33,7 +33,7 @@ func collectArgs(env: [String : String]) -> ArgsArray {
 let env = NSProcessInfo.processInfo().environment
 let task = NSTask()
 
-if let workingDir = env["working_dir"] as String! {
+if let workingDir = env["working_dir"] where workingDir != "" {
     task.currentDirectoryPath = workingDir
 }
 
