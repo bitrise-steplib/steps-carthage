@@ -68,27 +68,12 @@ func swiftVersion() -> String? {
 }
 
 func contentsOfCartfileResolved() -> String? {
-    guard let cartfileResolvedData = NSFileManager.defaultManager().contentsAtPath("\(workingDir)/\(resolvedFileName)") else {
-        return nil
+    guard let cartfileResolvedData = NSFileManager.defaultManager().contentsAtPath("\(workingDir)/\(resolvedFileName)"),
+        let cartfileResolvedContent = String(data: cartfileResolvedData, encoding: NSUTF8StringEncoding) else {
+            return nil
     }
-    
-    guard let cartfileResolvedContent = String(data: cartfileResolvedData, encoding: NSUTF8StringEncoding) else {
-        return nil
-    }
-    
+
     return cartfileResolvedContent
-}
-
-func cacheContents() -> String? {
-    guard let version = swiftVersion() else {
-        return nil
-    }
-
-    guard let resolved = contentsOfCartfileResolved() else {
-        return nil
-    }
-
-    return "--Swift version: \(version) --Swift version \n --\(resolvedFileName): \(resolved) --\(resolvedFileName)"
 }
 
 func cacheAvailable() -> Bool {
@@ -101,21 +86,18 @@ func cacheAvailable() -> Bool {
     } catch _ {
         return false
     }
-    
-    // read cache
-    guard let cacheFileData = NSFileManager.defaultManager().contentsAtPath("\(workingDir)/\(carthageDirName)/\(cacheFileName)") else {
-        return false
-    }
-    
-    guard let cacheFileContents = String(data: cacheFileData, encoding: NSUTF8StringEncoding) else {
-        return false
-    }
 
-    guard let newCacheContents = cacheContents() else {
-        return false
+    // read cache
+    guard let cacheFileData = NSFileManager.defaultManager().contentsAtPath("\(workingDir)/\(carthageDirName)/\(cacheFileName)"),
+        let cacheFileContents = String(data: cacheFileData, encoding: NSUTF8StringEncoding),
+        let version = swiftVersion(),
+        let resolved = contentsOfCartfileResolved() else {
+            return false
     }
     
-    return cacheFileContents == newCacheContents
+    let contents = "--Swift version: \(version) --Swift version \n --\(resolvedFileName): \(resolved) --\(resolvedFileName)"
+
+    return cacheFileContents == contents
 }
 
 // exit if bootstrap is cached
@@ -140,10 +122,13 @@ task.waitUntilExit()
 // create cache
 if bootstrapCommand {
     let cacheFilePath = "\(workingDir)/\(carthageDirName)/\(cacheFileName)"
-    guard let contents = cacheContents() else {
-        print("Failed to create cache content.")
-        exit(0)
+    guard let version = swiftVersion(),
+        let resolved = contentsOfCartfileResolved() else {
+            print("Failed to create cache content.")
+            exit(0)
     }
+    
+    let contents = "--Swift version: \(version) --Swift version \n --\(resolvedFileName): \(resolved) --\(resolvedFileName)"
 
     if NSFileManager.defaultManager().fileExistsAtPath("\(workingDir)/\(carthageDirName)") {
         do {
