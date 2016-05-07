@@ -6,7 +6,7 @@ typealias ArgsArray = Array<String>
 
 let carthageDirName = "Carthage"
 let buildDirName = "Build"
-let cacheFileName = "CacheFile"
+let cacheFileName = "Cachefile"
 
 let env = NSProcessInfo.processInfo().environment
 let task = NSTask()
@@ -110,7 +110,7 @@ func cacheAvailable() -> Bool {
         return false
     }
 
-    guard let newCacheContents = cacheContents() else {
+    guard let newCacheContents: String = cacheContents() else {
         return false
     }
     
@@ -118,10 +118,7 @@ func cacheAvailable() -> Bool {
 }
 
 // exit if bootstrap is cached
-
-let asd = cacheAvailable()
-
-if bootstrapCommand && asd {
+if bootstrapCommand && cacheAvailable() {
     print("Cache available for bootstrap command, exiting. If you would like to update your Carthage contents, select `update` as Carthage command and re-run your build.")
     exit(0)
 }
@@ -135,16 +132,13 @@ task.arguments = ["-c", command + args]
 
 print("Running carthage command: \(task.arguments!.reduce("") { str, arg in str + "\(arg) " })")
 
-// run the shell command
 task.launch()
-
-// ensure to be finished before another command can run
 task.waitUntilExit()
 
 // create cache
 if bootstrapCommand {
     let cacheFilePath = "\(workingDir)/\(carthageDirName)/\(cacheFileName)"
-    guard let cacheContents = cacheContents() else {
+    guard let cacheContents: String = cacheContents() else {
         print("Failed to create cache content.")
         exit(0)
     }
@@ -157,11 +151,11 @@ if bootstrapCommand {
             exit(0)
         }
     } else {
-        // create CacheFile
+        // create Cachefile
         if NSFileManager.defaultManager().createFileAtPath(cacheFilePath, contents: cacheContents.dataUsingEncoding(NSUTF8StringEncoding), attributes: nil) {
-            print("CacheFile created successfully.")
+            print("Cachefile created successfully.")
         } else {
-            print("Failed to create CacheFile.")
+            print("Failed to create Cachefile.")
         }
     }
 }
