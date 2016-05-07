@@ -2,7 +2,7 @@
 
 Plain simple build step for setting up your project with [Carthage](https://github.com/Carthage/Carthage).
 
-## Caching Carthage dependencies on [Bitrise](https://www.bitrise.io)
+## Cache Carthage dependencies on [Bitrise](https://www.bitrise.io)
 
 You can cache the result of `carthage bootstrap` to make Bitrise faster when building unchanged dependencies. For that you'll have to [set up caching](http://devcenter.bitrise.io/docs/using-the-build-cache#section-setup) in your Bitrise workflow.
 
