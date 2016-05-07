@@ -103,7 +103,7 @@ func cacheAvailable() -> Bool {
 // exit if bootstrap is cached
 let hasCachedItems = cacheAvailable()
 if bootstrapCommand && hasCachedItems {
-    print("Cache available for bootstrap command, exiting. If you would like to update your Carthage contents, select `update` as Carthage command and re-run your build.")
+    print("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as Carthage command and re-run your build.")
     exit(0)
 }
 
