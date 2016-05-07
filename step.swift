@@ -7,6 +7,7 @@ typealias ArgsArray = Array<String>
 let carthageDirName = "Carthage"
 let buildDirName = "Build"
 let cacheFileName = "Cachefile"
+let resolvedFileName = "Cartfile.resolved"
 
 let env = NSProcessInfo.processInfo().environment
 let task = NSTask()
@@ -67,7 +68,7 @@ func swiftVersion() -> String? {
 }
 
 func contentsOfCartfileResolved() -> String? {
-    guard let cartfileResolvedData = NSFileManager.defaultManager().contentsAtPath("\(workingDir)/Cartfile.resolved") else {
+    guard let cartfileResolvedData = NSFileManager.defaultManager().contentsAtPath("\(workingDir)/\(resolvedFileName)") else {
         return nil
     }
     
@@ -79,15 +80,15 @@ func contentsOfCartfileResolved() -> String? {
 }
 
 func cacheContents() -> String? {
-    guard let swiftVersion = swiftVersion() else {
+    guard let version = swiftVersion() else {
         return nil
     }
 
-    guard let contentsOfCartfileResolved = contentsOfCartfileResolved() else {
+    guard let resolved = contentsOfCartfileResolved() else {
         return nil
     }
 
-    return "--Swift version: \(swiftVersion) --Swift version \n --Cartfile.resolved: \(contentsOfCartfileResolved) --Cartfile.resolved"
+    return "--Swift version: \(version) --Swift version \n --\(resolvedFileName): \(resolved) --\(resolvedFileName)"
 }
 
 func cacheAvailable() -> Bool {
@@ -110,7 +111,7 @@ func cacheAvailable() -> Bool {
         return false
     }
 
-    guard let newCacheContents: String = cacheContents() else {
+    guard let newCacheContents = cacheContents() else {
         return false
     }
     
@@ -118,7 +119,8 @@ func cacheAvailable() -> Bool {
 }
 
 // exit if bootstrap is cached
-if bootstrapCommand && cacheAvailable() {
+let hasCachedItems = cacheAvailable()
+if bootstrapCommand && hasCachedItems {
     print("Cache available for bootstrap command, exiting. If you would like to update your Carthage contents, select `update` as Carthage command and re-run your build.")
     exit(0)
 }
@@ -138,21 +140,21 @@ task.waitUntilExit()
 // create cache
 if bootstrapCommand {
     let cacheFilePath = "\(workingDir)/\(carthageDirName)/\(cacheFileName)"
-    guard let cacheContents: String = cacheContents() else {
+    guard let contents = cacheContents() else {
         print("Failed to create cache content.")
         exit(0)
     }
 
     if NSFileManager.defaultManager().fileExistsAtPath("\(workingDir)/\(carthageDirName)") {
         do {
-            try cacheContents.writeToFile(cacheFilePath, atomically: false, encoding: NSUTF8StringEncoding)
+            try contents.writeToFile(cacheFilePath, atomically: false, encoding: NSUTF8StringEncoding)
         } catch _ {
             print("Failed to update CacheFile.")
             exit(0)
         }
     } else {
         // create Cachefile
-        if NSFileManager.defaultManager().createFileAtPath(cacheFilePath, contents: cacheContents.dataUsingEncoding(NSUTF8StringEncoding), attributes: nil) {
+        if NSFileManager.defaultManager().createFileAtPath(cacheFilePath, contents: contents.dataUsingEncoding(NSUTF8StringEncoding), attributes: nil) {
             print("Cachefile created successfully.")
         } else {
             print("Failed to create Cachefile.")
