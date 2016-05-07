@@ -4,6 +4,10 @@ import Foundation
 
 typealias ArgsArray = Array<String>
 
+let carthageDirName = "Carthage"
+let buildDirName = "Build"
+let cacheFileName = "CacheFile"
+
 func collectArgs(env: [String : String]) -> ArgsArray {
     var args = ArgsArray()
 
@@ -33,12 +37,39 @@ func collectArgs(env: [String : String]) -> ArgsArray {
 let env = NSProcessInfo.processInfo().environment
 let task = NSTask()
 
+var cacheAvailable = false
+
 if let workingDir = env["working_dir"] where workingDir != "" {
     task.currentDirectoryPath = workingDir
+
+    func fileExistsAtCarthagePath(pathComponent: String) -> Bool {
+        return NSFileManager.defaultManager().fileExistsAtPath("\(workingDir)/\(pathComponent)")
+    }
+
+    let carthageDir = fileExistsAtCarthagePath(carthageDirName)
+    if carthageDir {
+        let buildDir = fileExistsAtCarthagePath("\(carthageDirName)/\(buildDirName)")
+        let buildDirContents: [NSString]?
+
+        do {
+            buildDirContents = try NSFileManager.defaultManager().contentsOfDirectoryAtPath("\(workingDir)/\(carthageDirName)/\(buildDirName)")
+        } catch _ {
+            buildDirContents = nil
+        }
+        if buildDir && buildDirContents != nil {
+            cacheAvailable = true
+        }
+    }
 }
 
 guard let carthageCommand = env["carthage_command"] else {
     fatalError("no command to execute")
+}
+
+// read cache
+if carthageCommand == "bootstrap" && cacheAvailable {
+    print("Cache available for bootstrap command, exiting. If you would like to update your Carthage contents, select `update` as Carthage command and re-run your build.")
+    exit(0)
 }
 
 let command = "carthage \(carthageCommand)"
