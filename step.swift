@@ -14,7 +14,7 @@ let task = NSTask()
 
 guard let workingDir = env["working_dir"] where workingDir != "" else {
     print("Working directory set to empty string, or nil. Exiting.. Please set a working directory and re-run the build.")
-    exit(0)
+    exit(1)
 }
 
 guard let carthageCommand = env["carthage_command"] else {
@@ -119,13 +119,17 @@ print("Running carthage command: \(task.arguments!.reduce("") { str, arg in str 
 task.launch()
 task.waitUntilExit()
 
+guard task.terminationStatus == 0 else {
+    exit(task.terminationStatus)
+}
+
 // create cache
 if bootstrapCommand {
     let cacheFilePath = "\(workingDir)/\(carthageDirName)/\(cacheFileName)"
     guard let version = swiftVersion(),
         let resolved = contentsOfCartfileResolved() else {
             print("Failed to create cache content.")
-            exit(0)
+            exit(1)
     }
     
     let contents = "--Swift version: \(version) --Swift version \n --\(resolvedFileName): \(resolved) --\(resolvedFileName)"
@@ -135,7 +139,7 @@ if bootstrapCommand {
             try contents.writeToFile(cacheFilePath, atomically: false, encoding: NSUTF8StringEncoding)
         } catch _ {
             print("Failed to update CacheFile.")
-            exit(0)
+            exit(1)
         }
     } else {
         // create Cachefile
@@ -143,6 +147,9 @@ if bootstrapCommand {
             print("Cachefile created successfully.")
         } else {
             print("Failed to create Cachefile.")
+            exit(1)
         }
     }
 }
+
+exit(0)
