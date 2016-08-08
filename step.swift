@@ -22,6 +22,7 @@ guard let carthageCommand = env["carthage_command"] else {
 }
 
 let bootstrapCommand = carthageCommand == "bootstrap"
+let checkoutCommand = carthageCommand == "checkout"
 
 func collectArgs(env: [String : String]) -> ArgsArray {
     var args = ArgsArray()
@@ -108,7 +109,13 @@ if bootstrapCommand && hasCachedItems {
 }
 
 let command = "carthage \(carthageCommand)"
-var args = " " + ( collectArgs(env).map { "\($0)" } ).joinWithSeparator(" ")
+var args = " "
+
+if !checkoutCommand {
+    
+    args = args + ( collectArgs(env).map { "\($0)" } ).joinWithSeparator(" ")
+}
+
 
 task.currentDirectoryPath = workingDir
 task.launchPath = "/bin/bash"
