@@ -112,7 +112,6 @@ let command = "carthage \(carthageCommand)"
 var args = " "
 
 if !checkoutCommand {
-    
     args = args + ( collectArgs(env).map { "\($0)" } ).joinWithSeparator(" ")
 }
 
