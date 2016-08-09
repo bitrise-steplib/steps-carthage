@@ -1,6 +1,14 @@
-## Changelog (Current version: 2.1.2)
+## Changelog (Current version: 2.2.0)
 
 -----------------
+
+### 2.2.0 (2016 Aug 09)
+
+* [6fc5204] removed unused bump version workflow
+* [7efd34f] prep for v2.2.0
+* [456ed16] Merge pull request #23 from KoCMoHaBTa/master
+* [3983e0e] addressed PR comments - removed unnecessary empty line
+* [9b80d83] added support for carthage checkout command
 
 ### 2.1.2 (2016 Jul 12)
 
@@ -106,4 +114,4 @@
 
 -----------------
 
-Updated: 2016 Jul 12
+Updated: 2016 Aug 09
