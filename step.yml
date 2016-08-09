@@ -35,6 +35,7 @@ inputs:
       - bootstrap
       - update
       - build
+      - checkout
   - no_use_binaries: "false"
     opts:
       title: Set no use binaries flag
