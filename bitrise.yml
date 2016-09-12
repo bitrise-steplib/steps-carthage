@@ -3,6 +3,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
+  - STEP_VERSION: "2.3.0"
   # define these in your .bitrise.secrets.yml
   - BITRISE_PROJECT_PATH: sample-apps-carthage.xcodeproj
   - BITRISE_SCHEME: sample-apps-carthage
@@ -54,15 +55,14 @@ workflows:
   # --- workflows to create Release
   create-release-version:
     envs:
-    - RELEASE_VERSION: 2.2.0
+    - RELEASE_VERSION: $STEP_VERSION
     steps:
     - script:
         title:
         inputs:
         - content: |
             #!/bin/bash
-            set -e
-
+            set -ex
             export CI=true
             releaseman create --version $RELEASE_VERSION
 
@@ -73,7 +73,7 @@ workflows:
       # if you want to share this step into a StepLib
       - MY_STEPLIB_REPO_FORK_GIT_URL: $MY_STEPLIB_REPO_FORK_GIT_URL
       - STEP_ID_IN_STEPLIB: carthage
-      - STEP_GIT_VERION_TAG_TO_SHARE: 2.2.0
+      - STEP_GIT_VERION_TAG_TO_SHARE: $STEP_VERSION
       - STEP_GIT_CLONE_URL: https://github.com/bitrise-steplib/steps-carthage.git
     description: |-
       If this is the first time you try to share a Step you should
