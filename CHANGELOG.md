@@ -1,6 +1,11 @@
-## Changelog (Current version: 2.2.0)
+## Changelog (Current version: 2.3.0)
 
 -----------------
+
+### 2.3.0 (2016 Sep 12)
+
+* [32e45fc] prep for v2.3.0
+* [825d6bd] Use step-swift3.swift when Swift3 (#24)
 
 ### 2.2.0 (2016 Aug 09)
 
@@ -114,4 +119,4 @@
 
 -----------------
 
-Updated: 2016 Aug 09
+Updated: 2016 Sep 12
