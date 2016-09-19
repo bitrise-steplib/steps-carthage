@@ -115,10 +115,17 @@ if !checkoutCommand {
     args = args + ( collectArgs(env).map { "\($0)" } ).joined(separator: " ")
 }
 
+let githubPersonalAccessToken = env["github_access_token"]
+
+var preparedCommand = command + args
+if let githubPersonalAccessToken = githubPersonalAccessToken {
+    preparedCommand = "GITHUB_ACCESS_TOKEN=\(githubPersonalAccessToken) " + preparedCommand
+}
+
 
 task.currentDirectoryPath = workingDir
 task.launchPath = "/bin/bash"
-task.arguments = ["-c", command + args]
+task.arguments = ["-c", preparedCommand]
 
 print("Running carthage command: \(task.arguments!.reduce("") { str, arg in str + "\(arg) " })")
 

@@ -22,6 +22,16 @@ is_always_run: false
 is_skippable: false
 run_if: ""
 inputs:
+  - github_access_token: 
+    opts:
+      title: Github Personal Access Token
+      description: |-
+        Use this input to avoid Github rate limit issues.
+
+        See the github's guide: [Creating an access token for command-line use](https://help.github.com/articles/creating-an-access-token-for-command-line-use/),   
+        how to create Personal Access Token.
+
+        __UNCHECK EVERY SCOPE BOX__ when creating this token. There is no reason this token needs access to private information.
   - carthage_command: "update"
     opts:
       title: Carthage command to run
