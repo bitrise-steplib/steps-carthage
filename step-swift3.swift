@@ -9,7 +9,7 @@ let buildDirName = "Build"
 let cacheFileName = "Cachefile"
 let resolvedFileName = "Cartfile.resolved"
 
-let env = ProcessInfo.processInfo.environment
+var env = ProcessInfo.processInfo.environment
 let task = Process()
 
 guard let workingDir = env["working_dir"], workingDir != "" else {
@@ -115,10 +115,14 @@ if !checkoutCommand {
     args = args + ( collectArgs(env).map { "\($0)" } ).joined(separator: " ")
 }
 
+if let githubPersonalAccessToken = env["github_access_token"] {
+    env["GITHUB_ACCESS_TOKEN"] = githubPersonalAccessToken
+}
 
 task.currentDirectoryPath = workingDir
 task.launchPath = "/bin/bash"
 task.arguments = ["-c", command + args]
+task.environment = env 
 
 print("Running carthage command: \(task.arguments!.reduce("") { str, arg in str + "\(arg) " })")
 
