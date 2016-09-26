@@ -1,6 +1,11 @@
-## Changelog (Current version: 2.3.0)
+## Changelog (Current version: 2.4.0)
 
 -----------------
+
+### 2.4.0 (2016 Sep 26)
+
+* [4961160] prepare for 2.4.0
+* [2777a0d] GITHUB_ACCESS_TOKEN support (#25)
 
 ### 2.3.0 (2016 Sep 12)
 
@@ -119,4 +124,4 @@
 
 -----------------
 
-Updated: 2016 Sep 12
+Updated: 2016 Sep 26
