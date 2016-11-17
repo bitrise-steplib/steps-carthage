@@ -1,8 +1,8 @@
 title: Carthage
 summary: |-
-  Installs and updates Carthage to the latest available version and runs selected Carthage command.
+  Runs selected Carthage command.
 description: |-
-  Installs and updates Carthage to the latest available version and runs selected Carthage command.
+  Runs selected Carthage command.
   For more information about Carthage, visit the [Carthage GitHub page](https://github.com/Carthage/Carthage).
 website: https://github.com/bitrise-steplib/steps-carthage
 source_code_url: https://github.com/bitrise-steplib/steps-carthage
