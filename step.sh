@@ -1,14 +1,15 @@
 #!/bin/bash
-
-set -e
-
+set -ex
 THIS_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-SWIFT_MAJOR_VERSION="$( swift -version | head -n 1 | sed -e "s/^Apple Swift version \([1-9]*\).*$/\1/" )"
 
-if [[ "${SWIFT_MAJOR_VERSION}" == "3" ]]; then
-  swift ${THIS_SCRIPT_DIR}/step-swift3.swift
-else
-  swift ${THIS_SCRIPT_DIR}/step.swift
-fi
+tmp_gopath_dir="$(mktemp -d)"
 
-exit $?
+go_package_name="github.com/bitrise-steplib/steps-carthage"
+full_package_path="${tmp_gopath_dir}/src/${go_package_name}"
+mkdir -p "${full_package_path}"
+
+rsync -avh --quiet "${THIS_SCRIPT_DIR}/" "${full_package_path}/"
+
+export GOPATH="${tmp_gopath_dir}"
+export GO15VENDOREXPERIMENT=1
+go run "${full_package_path}/main.go"

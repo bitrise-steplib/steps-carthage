@@ -1,8 +1,8 @@
 title: Carthage
 summary: |-
-  Installs and updates Carthage to the latest available version and runs selected Carthage command.
+  Runs selected Carthage command.
 description: |-
-  Installs and updates Carthage to the latest available version and runs selected Carthage command.
+  Runs selected Carthage command.
   For more information about Carthage, visit the [Carthage GitHub page](https://github.com/Carthage/Carthage).
 website: https://github.com/bitrise-steplib/steps-carthage
 source_code_url: https://github.com/bitrise-steplib/steps-carthage
@@ -14,15 +14,21 @@ project_type_tags:
 type_tags:
   - carthage
   - system
-deps:
-  brew:
-  - name: carthage
 is_requires_admin_user: false
 is_always_run: false
 is_skippable: false
-run_if: ""
+deps:
+  brew:
+  - name: go
+  - name: carthage
+  apt_get:
+  - name: golang
+    bin_name: go
+toolkit:
+  go:
+    package_name: github.com/bitrise-steplib/steps-carthage
 inputs:
-  - github_access_token: 
+  - github_access_token: $GITHUB_ACCESS_TOKEN
     opts:
       title: Github Personal Access Token
       description: |-
@@ -38,60 +44,15 @@ inputs:
       summary: Select a command to set up your dependencies with.
       description: |-
         Select a command to set up your dependencies with.
-        * `bootstrap`: initializes the project with checking out & building all dependencies. (default)
-        * `update`: updates all dependencies.
-        * `build`: builds all checked out items.
-      value_options:
-      - bootstrap
-      - update
-      - build
-      - checkout
-  - no_use_binaries: "false"
-    opts:
-      title: Set no use binaries flag
-      summary: |-
-        Use this flag to make sure Carthage checks out all dependencies (otherwise
-        it defaults to binary framework releases). False by default.
-      value_options:
-      - "true"
-      - "false"
-  - verbose_output: "false"
-    opts:
-      title: Set verbose output flag
-      summary: |-
-        Use this flag to have a verbose output of the carthage command. False by default.
-      value_options:
-      - "true"
-      - "false"
-  - ssh_output: "false"
-    opts:
-      title: Set ssh flag
-      summary: |-
-        Use this flag to use ssh when cloning the repos. False by default.
-      value_options:
-      - "true"
-      - "false"
-  - working_dir: $BITRISE_SOURCE_DIR
-    opts:
-      title: "Working directory"
-      description: |
-        This directory will be set as the current working
-        directory for the carthage command.
-  - platform: "iOS"
-    opts:
-      title: "Platform"
-      description: |
-        Choose which platform to build your dependencies for.
-      value_options:
-      - "iOS"
-      - "Mac"
-      - "iOS,Mac"
-      - "tvOS"
-      - "all"
+
+        To see available commands run: `carthage help` on your local machine.
   - carthage_options:
     opts:
       title: Additional options for `carthage` command
       description: |-
         Options added to the end of the Carthage call.
-        You can use multiple options, separated by a space
-        character.
+        You can use multiple options, separated by a space character.
+
+        To see available command's options, call: `carthage help COMMAND` 
+
+        Format example: `--platform ios`
