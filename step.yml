@@ -54,3 +54,5 @@ inputs:
         You can use multiple options, separated by a space character.
 
         To see available command's options, call: `carthage help COMMAND` 
+
+        Format example: `--platform ios`

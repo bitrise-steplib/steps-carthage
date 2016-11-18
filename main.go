@@ -229,6 +229,8 @@ func main() {
 		if err := fileutil.WriteStringToFile(cacheFilePth, cacheContent); err != nil {
 			fail("Failed to write cahe file, error: %s", err)
 		}
+
+		log.Done("Cachefile: %s", cacheFilePth)
 	}
 	// ---
 }
