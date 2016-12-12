@@ -9,7 +9,7 @@ You can cache the result of `carthage bootstrap` to make Bitrise faster when bui
 1. add a cache pull step before your Carthage step,
 2. set up a cache push step after your Carthage step and make sure to add `./Carthage -> ./Carthage/Cachefile`.
 
-The `Cachefile` stores a Swift version you ran `carthage boostrap` the last time and the content of your `Cartfile.resolved`. Until either of these information is not changed between builds, Bitrise will ignore the `bootstrap` call and use the cached content of your `Carthage/Build` directory for building your project. If you have changes in your `Cartfile.resolved`, or changed the stack to one with a different Swift version, it will run `carthage bootstrap` to make sure the cache is only used when it's 100% compatible.
+The `Cachefile` stores a Swift version you ran `carthage bootstrap` the last time and the content of your `Cartfile.resolved`. Until either of these information is not changed between builds, Bitrise will ignore the `bootstrap` call and use the cached content of your `Carthage/Build` directory for building your project. If you have changes in your `Cartfile.resolved`, or changed the stack to one with a different Swift version, it will run `carthage bootstrap` to make sure the cache is only used when it's 100% compatible.
 
 ## Run locally
 
