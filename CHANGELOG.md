@@ -1,6 +1,11 @@
-## Changelog (Current version: 3.0.0)
+## Changelog (Current version: 3.0.1)
 
 -----------------
+
+### 3.0.1 (2016 Dec 12)
+
+* [b3720bb] prepare for 3.0.1
+* [910c7f9] Fix typo (#29)
 
 ### 3.0.0 (2016 Nov 18)
 
@@ -129,4 +134,4 @@
 
 -----------------
 
-Updated: 2016 Nov 18
+Updated: 2016 Dec 12
