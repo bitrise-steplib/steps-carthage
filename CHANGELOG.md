@@ -1,6 +1,11 @@
-## Changelog (Current version: 3.0.2)
+## Changelog (Current version: 3.0.3)
 
 -----------------
+
+### 3.0.3 (2017 Jan 03)
+
+* [5c17351] prepare for 3.0.3
+* [d3384a3] Update main.go (#32)
 
 ### 3.0.2 (2016 Dec 19)
 
@@ -139,4 +144,4 @@
 
 -----------------
 
-Updated: 2016 Dec 19
+Updated: 2017 Jan 03
