@@ -103,7 +103,7 @@ func isCacheAvailable(srcDir string) (bool, error) {
 		return false, nil
 	}
 
-	// read cahce
+	// read cache
 	cacheContent := ""
 
 	cacheFilePth := filepath.Join(srcDir, carthageDirName, cacheFileName)
@@ -162,7 +162,7 @@ func main() {
 		fail("Failed to check cached files, error: %s", err)
 	}
 
-	log.Detail("has cahched items: %v", hasCachedItems)
+	log.Detail("has cached items: %v", hasCachedItems)
 
 	if configs.CarthageCommand == "bootstrap" && hasCachedItems {
 		log.Done("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as CarthageCommand and re-run your build.")
