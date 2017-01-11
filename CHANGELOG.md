@@ -1,6 +1,12 @@
-## Changelog (Current version: 3.0.3)
+## Changelog (Current version: 3.0.4)
 
 -----------------
+
+### 3.0.4 (2017 Jan 11)
+
+* [f0f15f3] prepare for 3.0.4
+* [e74a19c] default command changed to "bootstrap" (#33)
+* [6d13955] Cache setup link fix
 
 ### 3.0.3 (2017 Jan 03)
 
@@ -144,4 +150,4 @@
 
 -----------------
 
-Updated: 2017 Jan 03
+Updated: 2017 Jan 11
