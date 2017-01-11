@@ -39,7 +39,7 @@ inputs:
         how to create Personal Access Token.
 
         __UNCHECK EVERY SCOPE BOX__ when creating this token. There is no reason this token needs access to private information.
-  - carthage_command: "update"
+  - carthage_command: "bootstrap"
     opts:
       title: Carthage command to run
       summary: Select a command to set up your dependencies with.
