@@ -1,6 +1,11 @@
-## Changelog (Current version: 3.0.4)
+## Changelog (Current version: 3.0.5)
 
 -----------------
+
+### 3.0.5 (2017 Feb 01)
+
+* [f69851c] prepare for 3.0.5
+* [cbf38c9] Work dir (#36)
 
 ### 3.0.4 (2017 Jan 11)
 
@@ -150,4 +155,4 @@
 
 -----------------
 
-Updated: 2017 Jan 11
+Updated: 2017 Feb 01
