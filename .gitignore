@@ -1,4 +1,4 @@
 .bitrise*
 _tmp/
-gows*
-.gows*
+.gows.user.yml
+gows.yml
