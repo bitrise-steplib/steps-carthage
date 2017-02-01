@@ -37,6 +37,8 @@ workflows:
         - pull_request_id: ""
         - clone_depth: ""
     - path::./:
+        inputs:
+        - carthage_options: --platform ios --project-directory $BITRISE_SOURCE_DIR/Carthage
 
   go-tests:
     before_run:
