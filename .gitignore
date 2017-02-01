@@ -1,2 +1,4 @@
 .bitrise*
 _tmp/
+gows*
+.gows*
