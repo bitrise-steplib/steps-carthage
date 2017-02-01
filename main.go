@@ -154,19 +154,21 @@ func main() {
 	}
 
 	projectDir := configs.SourceDir
-	projectDirKeyIdx := -1
-	for idx, option := range customOptions {
+	isNextOptionProjectDir := false
+	for _, option := range customOptions {
 		if option == "--project-directory" {
-			projectDirKeyIdx = idx
+			isNextOptionProjectDir = true
+			continue
+		}
+
+		if isNextOptionProjectDir {
+			projectDir = option
+
+			log.Infof("--project-directory flag found with value: %s", projectDir)
+			log.Printf("using %s as working directory", projectDir)
+
 			break
 		}
-	}
-
-	if projectDirKeyIdx > -1 && projectDirKeyIdx+1 < len(customOptions) {
-		projectDir = customOptions[projectDirKeyIdx+1]
-
-		log.Infof("--project-directory flag found with value: %s", projectDir)
-		log.Printf("using %s as working directory", projectDir)
 	}
 
 	//
