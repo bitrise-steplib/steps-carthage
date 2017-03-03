@@ -196,6 +196,12 @@ func main() {
 	cacheBuildFlagInCustomOptions := indexInStringSlice("--cache-builds", customOptions)
 
 	log.Infof("Carthage version: %s", currentCarthageVersion.String())
+	if !cacheBuildFlagInCustomOptions && isCarthageBuildCacheSupported {
+		log.Warnf("Built in cache is available, adding --cache-builds flag")
+	} else {
+		log.Printf("--cache-builds flag found")
+	}
+	log.Printf("To save cache files use Cache Pull and Cache Push steps")
 	fmt.Println()
 
 	if !isCarthageBuildCacheSupported && cacheBuildFlagInCustomOptions {
