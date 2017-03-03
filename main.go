@@ -100,24 +100,21 @@ func isCarthageBuildCacheSupported() (bool, *version.Version, error) {
 		return false, nil, err
 	}
 
-	// if output is multi-line, get the last line of string
-	if outLines := strings.Split(out, "\n"); len(outLines) > 1 {
-		out = outLines[1]
-	}
-
-	// parse Version from cmd output
-	currentVersion, err := version.NewVersion(out)
-	if err != nil {
-		return false, nil, err
-	}
-
 	// get Version which supports build cache
 	buildCacheSupportVersion, err := version.NewVersion(buildCacheSupportSinceVersion)
 	if err != nil {
 		return false, nil, err
 	}
 
-	return !currentVersion.LessThan(buildCacheSupportVersion), currentVersion, nil
+	// if output is multi-line, get the last line of string
+	// parse Version from cmd output
+	for _, outLine := range strings.Split(out, "\n") {
+		if currentVersion, err := version.NewVersion(outLine); err == nil {
+			return !currentVersion.LessThan(buildCacheSupportVersion), currentVersion, nil
+		}
+	}
+
+	return false, nil, errors.New("failed to parse `$ carthage version` output")
 }
 
 func isCacheAvailable(srcDir string) (bool, error) {
@@ -197,7 +194,7 @@ func main() {
 	// get build cache support and version
 	isCarthageBuildCacheSupported, currentCarthageVersion, err := isCarthageBuildCacheSupported()
 	if err != nil {
-		log.Errorf("Failed to get carthage version, error: %s", err)
+		fail("Failed to get carthage version, error: %s", err)
 	}
 
 	cacheBuildFlagInCustomOptions := indexInStringSlice("--cache-builds", customOptions)
