@@ -8,6 +8,8 @@ import (
 
 	"path/filepath"
 
+	"strings"
+
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
@@ -96,6 +98,11 @@ func isCarthageBuildCacheSupported() (bool, *version.Version, error) {
 	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 	if err != nil {
 		return false, nil, err
+	}
+
+	// if output is multi-line, get the last line of string
+	if outLines := strings.Split(out, "\n"); len(outLines) > 1 {
+		out = outLines[1]
 	}
 
 	// parse Version from cmd output
@@ -198,17 +205,17 @@ func main() {
 	log.Infof("Carthage version: %s", currentCarthageVersion.String())
 	if !cacheBuildFlagInCustomOptions && isCarthageBuildCacheSupported {
 		log.Warnf("Built in cache is available, adding --cache-builds flag")
-	} else {
-		log.Printf("--cache-builds flag found")
+	} else if cacheBuildFlagInCustomOptions {
+		if !isCarthageBuildCacheSupported {
+			log.Warnf("Invalid flag --cache-builds")
+			log.Printf("It's supported since carthage version (%s), your carthage version: %s", buildCacheSupportSinceVersion, currentCarthageVersion.String())
+			fmt.Println()
+		} else {
+			log.Printf("--cache-builds flag found")
+		}
 	}
 	log.Printf("To save cache files use Cache Pull and Cache Push steps")
 	fmt.Println()
-
-	if !isCarthageBuildCacheSupported && cacheBuildFlagInCustomOptions {
-		log.Warnf("Invalid flag --cache-builds")
-		log.Printf("It's supported since carthage version (%s), your carthage version: %s", buildCacheSupportSinceVersion, currentCarthageVersion.String())
-		fmt.Println()
-	}
 
 	projectDir := configs.SourceDir
 	isNextOptionProjectDir := false
