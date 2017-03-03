@@ -200,9 +200,7 @@ func main() {
 	cacheBuildFlagInCustomOptions := indexInStringSlice("--cache-builds", customOptions)
 
 	log.Infof("Carthage version: %s", currentCarthageVersion.String())
-	if !cacheBuildFlagInCustomOptions && isCarthageBuildCacheSupported {
-		log.Warnf("Built in cache is available, adding --cache-builds flag")
-	} else if cacheBuildFlagInCustomOptions {
+	if cacheBuildFlagInCustomOptions {
 		if !isCarthageBuildCacheSupported {
 			log.Warnf("Invalid flag --cache-builds")
 			log.Printf("It's supported since carthage version (%s), your carthage version: %s", buildCacheSupportSinceVersion, currentCarthageVersion.String())
@@ -260,6 +258,7 @@ func main() {
 	args := append([]string{configs.CarthageCommand}, customOptions...)
 
 	if isCarthageBuildCacheSupported && !cacheBuildFlagInCustomOptions && configs.CarthageCommand == "bootstrap" {
+		log.Warnf("Built in cache is available, adding --cache-builds flag")
 		args = append(args, "--cache-builds")
 	}
 
