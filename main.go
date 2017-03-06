@@ -108,7 +108,7 @@ func getCarthageVersion() (*version.Version, error) {
 		}
 	}
 
-	return nil, errors.New("failed to parse `$ carthage version` output")
+	return nil, fmt.Errorf("failed to parse `$ carthage version` output: %s", out)
 }
 
 func isCarthageBuildCacheSupported(currentVersion *version.Version) (bool, error) {
