@@ -8,18 +8,22 @@ import (
 
 	"path/filepath"
 
+	"strings"
+
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
+	version "github.com/hashicorp/go-version"
 	"github.com/kballard/go-shellquote"
 )
 
 const (
-	carthageDirName  = "Carthage"
-	buildDirName     = "Build"
-	cacheFileName    = "Cachefile"
-	resolvedFileName = "Cartfile.resolved"
+	carthageDirName               = "Carthage"
+	buildDirName                  = "Build"
+	cacheFileName                 = "Cachefile"
+	resolvedFileName              = "Cartfile.resolved"
+	buildCacheSupportSinceVersion = "0.20.0"
 )
 
 // ConfigsModel ...
@@ -77,6 +81,45 @@ func swiftVersion() (string, error) {
 		return "", err
 	}
 	return out, nil
+}
+
+func stringSliceContains(value string, list []string) bool {
+	for _, v := range list {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
+
+func getCarthageVersion() (*version.Version, error) {
+	// get carthage version cmd
+	cmd := command.New("carthage", "version")
+	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+
+	// if output is multi-line, get the last line of string
+	// parse Version from cmd output
+	for _, outLine := range strings.Split(out, "\n") {
+		if currentVersion, err := version.NewVersion(outLine); err == nil {
+			return currentVersion, nil
+		}
+	}
+
+	return nil, fmt.Errorf("failed to parse `$ carthage version` output: %s", out)
+}
+
+func isCarthageBuildCacheSupported(currentVersion *version.Version) (bool, error) {
+	// get Version which supports build cache
+	buildCacheSupportVersion, err := version.NewVersion(buildCacheSupportSinceVersion)
+	if err != nil {
+		return false, err
+	}
+
+	// compare versions
+	return !currentVersion.LessThan(buildCacheSupportVersion), nil
 }
 
 func isCacheAvailable(srcDir string) (bool, error) {
@@ -153,6 +196,32 @@ func main() {
 		customOptions = options
 	}
 
+	currentVersion, err := getCarthageVersion()
+	if err != nil {
+		fail("Failed to get carthage version, error: %s", err)
+	}
+
+	// get build cache support and version
+	isCarthageBuildCacheSupported, err := isCarthageBuildCacheSupported(currentVersion)
+	if err != nil {
+		fail("Failed to check carthage version, error: %s", err)
+	}
+
+	cacheBuildFlagInCustomOptions := stringSliceContains("--cache-builds", customOptions)
+
+	log.Infof("Carthage version: %s", currentVersion.String())
+	if cacheBuildFlagInCustomOptions {
+		if !isCarthageBuildCacheSupported {
+			log.Warnf("Invalid flag --cache-builds")
+			log.Printf("It's supported since carthage version (%s), your carthage version: %s", buildCacheSupportSinceVersion, currentVersion.String())
+			fmt.Println()
+		} else {
+			log.Printf("--cache-builds flag found")
+		}
+	}
+	log.Printf("To save cache files use Cache Pull and Cache Push steps")
+	fmt.Println()
+
 	projectDir := configs.SourceDir
 	isNextOptionProjectDir := false
 	for _, option := range customOptions {
@@ -173,29 +242,36 @@ func main() {
 
 	//
 	// Exit if bootstrap is cached
-	fmt.Println()
-	log.Infof("Check if cache is available")
+	if !isCarthageBuildCacheSupported {
+		fmt.Println()
+		log.Infof("Check if cache is available")
 
-	hasCachedItems, err := isCacheAvailable(projectDir)
-	if err != nil {
-		fail("Failed to check cached files, error: %s", err)
+		hasCachedItems, err := isCacheAvailable(projectDir)
+		if err != nil {
+			fail("Failed to check cached files, error: %s", err)
+		}
+
+		log.Printf("has cached items: %v", hasCachedItems)
+
+		if configs.CarthageCommand == "bootstrap" && hasCachedItems {
+			log.Donef("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as CarthageCommand and re-run your build.")
+			os.Exit(0)
+		}
 	}
-
-	log.Printf("has cached items: %v", hasCachedItems)
-
-	if configs.CarthageCommand == "bootstrap" && hasCachedItems {
-		log.Donef("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as CarthageCommand and re-run your build.")
-		os.Exit(0)
-	}
-
-	fmt.Println()
 	// ---
 
 	//
 	// Run carthage command
+	fmt.Println()
 	log.Infof("Running Carthage command")
 
 	args := append([]string{configs.CarthageCommand}, customOptions...)
+
+	if isCarthageBuildCacheSupported && !cacheBuildFlagInCustomOptions && configs.CarthageCommand == "bootstrap" {
+		log.Warnf("Built in cache is available, adding --cache-builds flag")
+		args = append(args, "--cache-builds")
+	}
+
 	cmd := command.New("carthage", args...)
 
 	if configs.GithubAccessToken != "" {
@@ -217,7 +293,7 @@ func main() {
 
 	//
 	// Create cache
-	if configs.CarthageCommand == "bootstrap" {
+	if configs.CarthageCommand == "bootstrap" && !isCarthageBuildCacheSupported {
 		fmt.Println()
 		log.Infof("Creating cache")
 
