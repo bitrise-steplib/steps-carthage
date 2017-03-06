@@ -83,7 +83,7 @@ func swiftVersion() (string, error) {
 	return out, nil
 }
 
-func indexInStringSlice(value string, list []string) bool {
+func stringSliceContains(value string, list []string) bool {
 	for _, v := range list {
 		if v == value {
 			return true
@@ -207,7 +207,7 @@ func main() {
 		fail("Failed to check carthage version, error: %s", err)
 	}
 
-	cacheBuildFlagInCustomOptions := indexInStringSlice("--cache-builds", customOptions)
+	cacheBuildFlagInCustomOptions := stringSliceContains("--cache-builds", customOptions)
 
 	log.Infof("Carthage version: %s", currentVersion.String())
 	if cacheBuildFlagInCustomOptions {
