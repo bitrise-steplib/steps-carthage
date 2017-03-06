@@ -92,29 +92,34 @@ func indexInStringSlice(value string, list []string) bool {
 	return false
 }
 
-func isCarthageBuildCacheSupported() (bool, *version.Version, error) {
+func getCarthageVersion() (*version.Version, error) {
 	// get carthage version cmd
 	cmd := command.New("carthage", "version")
 	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 	if err != nil {
-		return false, nil, err
-	}
-
-	// get Version which supports build cache
-	buildCacheSupportVersion, err := version.NewVersion(buildCacheSupportSinceVersion)
-	if err != nil {
-		return false, nil, err
+		return nil, err
 	}
 
 	// if output is multi-line, get the last line of string
 	// parse Version from cmd output
 	for _, outLine := range strings.Split(out, "\n") {
 		if currentVersion, err := version.NewVersion(outLine); err == nil {
-			return !currentVersion.LessThan(buildCacheSupportVersion), currentVersion, nil
+			return currentVersion, nil
 		}
 	}
 
-	return false, nil, errors.New("failed to parse `$ carthage version` output")
+	return nil, errors.New("failed to parse `$ carthage version` output")
+}
+
+func isCarthageBuildCacheSupported(currentVersion *version.Version) (bool, error) {
+	// get Version which supports build cache
+	buildCacheSupportVersion, err := version.NewVersion(buildCacheSupportSinceVersion)
+	if err != nil {
+		return false, err
+	}
+
+	// compare versions
+	return !currentVersion.LessThan(buildCacheSupportVersion), nil
 }
 
 func isCacheAvailable(srcDir string) (bool, error) {
@@ -191,19 +196,24 @@ func main() {
 		customOptions = options
 	}
 
-	// get build cache support and version
-	isCarthageBuildCacheSupported, currentCarthageVersion, err := isCarthageBuildCacheSupported()
+	currentVersion, err := getCarthageVersion()
 	if err != nil {
 		fail("Failed to get carthage version, error: %s", err)
 	}
 
+	// get build cache support and version
+	isCarthageBuildCacheSupported, err := isCarthageBuildCacheSupported(currentVersion)
+	if err != nil {
+		fail("Failed to check carthage version, error: %s", err)
+	}
+
 	cacheBuildFlagInCustomOptions := indexInStringSlice("--cache-builds", customOptions)
 
-	log.Infof("Carthage version: %s", currentCarthageVersion.String())
+	log.Infof("Carthage version: %s", currentVersion.String())
 	if cacheBuildFlagInCustomOptions {
 		if !isCarthageBuildCacheSupported {
 			log.Warnf("Invalid flag --cache-builds")
-			log.Printf("It's supported since carthage version (%s), your carthage version: %s", buildCacheSupportSinceVersion, currentCarthageVersion.String())
+			log.Printf("It's supported since carthage version (%s), your carthage version: %s", buildCacheSupportSinceVersion, currentVersion.String())
 			fmt.Println()
 		} else {
 			log.Printf("--cache-builds flag found")
