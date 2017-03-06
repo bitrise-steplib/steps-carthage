@@ -1,6 +1,11 @@
-## Changelog (Current version: 3.0.5)
+## Changelog (Current version: 3.0.6)
 
 -----------------
+
+### 3.0.6 (2017 Mar 06)
+
+* [dc98818] Prepare for 3.0.6
+* [188ea47] Added --cache-builds flag from 0.20.0 version (#38)
 
 ### 3.0.5 (2017 Feb 01)
 
@@ -155,4 +160,4 @@
 
 -----------------
 
-Updated: 2017 Feb 01
+Updated: 2017 Mar 06
