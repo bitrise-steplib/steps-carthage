@@ -242,14 +242,15 @@ func main() {
 
 	//
 	// Exit if bootstrap is cached
-	if !isCarthageBuildCacheSupported {
-		fmt.Println()
-		log.Infof("Check if cache is available")
+	fmt.Println()
+	log.Infof("Check if cache is available")
 
-		hasCachedItems, err := isCacheAvailable(projectDir)
-		if err != nil {
-			fail("Failed to check cached files, error: %s", err)
-		}
+	hasCachedItems, err := isCacheAvailable(projectDir)
+	if err != nil {
+		fail("Failed to check cached files, error: %s", err)
+	}
+
+	if !isCarthageBuildCacheSupported {
 
 		log.Printf("has cached items: %v", hasCachedItems)
 
@@ -267,7 +268,7 @@ func main() {
 
 	args := append([]string{configs.CarthageCommand}, customOptions...)
 
-	if isCarthageBuildCacheSupported && !cacheBuildFlagInCustomOptions && configs.CarthageCommand == "bootstrap" {
+	if isCarthageBuildCacheSupported && !cacheBuildFlagInCustomOptions && configs.CarthageCommand == "bootstrap" && !hasCachedItems {
 		log.Warnf("Built in cache is available, adding --cache-builds flag")
 		args = append(args, "--cache-builds")
 	}
