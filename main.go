@@ -293,7 +293,7 @@ func main() {
 
 	//
 	// Create cache
-	if configs.CarthageCommand == "bootstrap" && !isCarthageBuildCacheSupported {
+	if configs.CarthageCommand == "bootstrap" {
 		fmt.Println()
 		log.Infof("Creating cache")
 
