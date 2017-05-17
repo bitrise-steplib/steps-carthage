@@ -267,7 +267,7 @@ func main() {
 
 	args := append([]string{configs.CarthageCommand}, customOptions...)
 
-	if isCarthageBuildCacheSupported && !cacheBuildFlagInCustomOptions && configs.CarthageCommand == "bootstrap" && !hasCachedItems {
+	if isCarthageBuildCacheSupported && !cacheBuildFlagInCustomOptions && configs.CarthageCommand == "bootstrap" && hasCachedItems {
 		log.Warnf("Built in cache is available, adding --cache-builds flag")
 		args = append(args, "--cache-builds")
 	}
