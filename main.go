@@ -250,10 +250,9 @@ func main() {
 		fail("Failed to check cached files, error: %s", err)
 	}
 
+	log.Printf("has cached items: %v", hasCachedItems)
+
 	if !isCarthageBuildCacheSupported {
-
-		log.Printf("has cached items: %v", hasCachedItems)
-
 		if configs.CarthageCommand == "bootstrap" && hasCachedItems {
 			log.Donef("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as CarthageCommand and re-run your build.")
 			os.Exit(0)
