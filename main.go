@@ -2,18 +2,17 @@ package main
 
 // ConfigsModel ...
 import (
-	"errors"
 	"fmt"
 	"os"
-
 	"path/filepath"
-
 	"strings"
 
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-io/go-utils/sliceutil"
+	"github.com/bitrise-tools/go-steputils/input"
 	version "github.com/hashicorp/go-version"
 	"github.com/kballard/go-shellquote"
 )
@@ -24,6 +23,7 @@ const (
 	cacheFileName                 = "Cachefile"
 	resolvedFileName              = "Cartfile.resolved"
 	buildCacheSupportSinceVersion = "0.20.0"
+	buildCacheCommandFlag         = "--cache-builds"
 )
 
 // ConfigsModel ...
@@ -59,8 +59,8 @@ func fail(format string, v ...interface{}) {
 }
 
 func (configs ConfigsModel) validate() error {
-	if configs.CarthageCommand == "" {
-		return errors.New("no CarthageCommand parameter specified")
+	if err := input.ValidateIfNotEmpty(configs.CarthageCommand); err != nil {
+		return fmt.Errorf("CarthageCommand, %s", err)
 	}
 
 	return nil
@@ -81,15 +81,6 @@ func swiftVersion() (string, error) {
 		return "", err
 	}
 	return out, nil
-}
-
-func stringSliceContains(value string, list []string) bool {
-	for _, v := range list {
-		if v == value {
-			return true
-		}
-	}
-	return false
 }
 
 func getCarthageVersion() (*version.Version, error) {
@@ -207,16 +198,16 @@ func main() {
 		fail("Failed to check carthage version, error: %s", err)
 	}
 
-	cacheBuildFlagInCustomOptions := stringSliceContains("--cache-builds", customOptions)
+	cacheBuildFlagInCustomOptions := sliceutil.IsStringInSlice(buildCacheCommandFlag, customOptions)
 
 	log.Infof("Carthage version: %s", currentVersion.String())
 	if cacheBuildFlagInCustomOptions {
 		if !isCarthageBuildCacheSupported {
-			log.Warnf("Invalid flag --cache-builds")
+			log.Warnf("Invalid flag %s", buildCacheCommandFlag)
 			log.Printf("It's supported since carthage version (%s), your carthage version: %s", buildCacheSupportSinceVersion, currentVersion.String())
 			fmt.Println()
 		} else {
-			log.Printf("--cache-builds flag found")
+			log.Printf("%s flag found", buildCacheCommandFlag)
 		}
 	}
 	log.Printf("To save cache files use Cache Pull and Cache Push steps")
@@ -242,17 +233,17 @@ func main() {
 
 	//
 	// Exit if bootstrap is cached
+	fmt.Println()
+	log.Infof("Check if cache is available")
+
+	hasCachedItems, err := isCacheAvailable(projectDir)
+	if err != nil {
+		fail("Failed to check cached files, error: %s", err)
+	}
+
+	log.Printf("has cached items: %v", hasCachedItems)
+
 	if !isCarthageBuildCacheSupported {
-		fmt.Println()
-		log.Infof("Check if cache is available")
-
-		hasCachedItems, err := isCacheAvailable(projectDir)
-		if err != nil {
-			fail("Failed to check cached files, error: %s", err)
-		}
-
-		log.Printf("has cached items: %v", hasCachedItems)
-
 		if configs.CarthageCommand == "bootstrap" && hasCachedItems {
 			log.Donef("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as CarthageCommand and re-run your build.")
 			os.Exit(0)
@@ -267,9 +258,19 @@ func main() {
 
 	args := append([]string{configs.CarthageCommand}, customOptions...)
 
-	if isCarthageBuildCacheSupported && !cacheBuildFlagInCustomOptions && configs.CarthageCommand == "bootstrap" {
-		log.Warnf("Built in cache is available, adding --cache-builds flag")
-		args = append(args, "--cache-builds")
+	if isCarthageBuildCacheSupported && !cacheBuildFlagInCustomOptions && configs.CarthageCommand == "bootstrap" && hasCachedItems {
+		log.Warnf("Built in cache is available, adding %s flag", buildCacheCommandFlag)
+		args = append(args, buildCacheCommandFlag)
+	}
+
+	if isCarthageBuildCacheSupported && cacheBuildFlagInCustomOptions && configs.CarthageCommand == "bootstrap" && !hasCachedItems {
+		cleanedArgs := []string{}
+		for _, arg := range args {
+			if arg != buildCacheCommandFlag {
+				cleanedArgs = append(cleanedArgs, arg)
+			}
+		}
+		args = cleanedArgs
 	}
 
 	cmd := command.New("carthage", args...)
@@ -293,7 +294,7 @@ func main() {
 
 	//
 	// Create cache
-	if configs.CarthageCommand == "bootstrap" && !isCarthageBuildCacheSupported {
+	if configs.CarthageCommand == "bootstrap" {
 		fmt.Println()
 		log.Infof("Creating cache")
 
