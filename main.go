@@ -2,7 +2,6 @@ package main
 
 // ConfigsModel ...
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -14,6 +13,8 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-io/go-utils/sliceutil"
+	"github.com/bitrise-tools/go-steputils/input"
 	version "github.com/hashicorp/go-version"
 	"github.com/kballard/go-shellquote"
 )
@@ -60,8 +61,8 @@ func fail(format string, v ...interface{}) {
 }
 
 func (configs ConfigsModel) validate() error {
-	if configs.CarthageCommand == "" {
-		return errors.New("no CarthageCommand parameter specified")
+	if err := input.ValidateIfNotEmpty(configs.CarthageCommand); err != nil {
+		return fmt.Errorf("CarthageCommand, %s", err)
 	}
 
 	return nil
@@ -82,15 +83,6 @@ func swiftVersion() (string, error) {
 		return "", err
 	}
 	return out, nil
-}
-
-func stringSliceContains(value string, list []string) bool {
-	for _, v := range list {
-		if v == value {
-			return true
-		}
-	}
-	return false
 }
 
 func getCarthageVersion() (*version.Version, error) {
@@ -208,7 +200,7 @@ func main() {
 		fail("Failed to check carthage version, error: %s", err)
 	}
 
-	cacheBuildFlagInCustomOptions := stringSliceContains(buildCacheCommandFlag, customOptions)
+	cacheBuildFlagInCustomOptions := sliceutil.IsStringInSlice(buildCacheCommandFlag, customOptions)
 
 	log.Infof("Carthage version: %s", currentVersion.String())
 	if cacheBuildFlagInCustomOptions {
