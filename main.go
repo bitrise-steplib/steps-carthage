@@ -4,9 +4,7 @@ package main
 import (
 	"fmt"
 	"os"
-
 	"path/filepath"
-
 	"strings"
 
 	"github.com/bitrise-io/go-utils/command"
