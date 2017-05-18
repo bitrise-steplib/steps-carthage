@@ -24,6 +24,7 @@ const (
 	cacheFileName                 = "Cachefile"
 	resolvedFileName              = "Cartfile.resolved"
 	buildCacheSupportSinceVersion = "0.20.0"
+	buildCacheCommandFlag         = "--cache-builds"
 )
 
 // ConfigsModel ...
@@ -207,16 +208,16 @@ func main() {
 		fail("Failed to check carthage version, error: %s", err)
 	}
 
-	cacheBuildFlagInCustomOptions := stringSliceContains("--cache-builds", customOptions)
+	cacheBuildFlagInCustomOptions := stringSliceContains(buildCacheCommandFlag, customOptions)
 
 	log.Infof("Carthage version: %s", currentVersion.String())
 	if cacheBuildFlagInCustomOptions {
 		if !isCarthageBuildCacheSupported {
-			log.Warnf("Invalid flag --cache-builds")
+			log.Warnf("Invalid flag %s", buildCacheCommandFlag)
 			log.Printf("It's supported since carthage version (%s), your carthage version: %s", buildCacheSupportSinceVersion, currentVersion.String())
 			fmt.Println()
 		} else {
-			log.Printf("--cache-builds flag found")
+			log.Printf("%s flag found", buildCacheCommandFlag)
 		}
 	}
 	log.Printf("To save cache files use Cache Pull and Cache Push steps")
@@ -268,8 +269,18 @@ func main() {
 	args := append([]string{configs.CarthageCommand}, customOptions...)
 
 	if isCarthageBuildCacheSupported && !cacheBuildFlagInCustomOptions && configs.CarthageCommand == "bootstrap" && hasCachedItems {
-		log.Warnf("Built in cache is available, adding --cache-builds flag")
-		args = append(args, "--cache-builds")
+		log.Warnf("Built in cache is available, adding %s flag", buildCacheCommandFlag)
+		args = append(args, buildCacheCommandFlag)
+	}
+
+	if isCarthageBuildCacheSupported && cacheBuildFlagInCustomOptions && configs.CarthageCommand == "bootstrap" && !hasCachedItems {
+		cleanedArgs := []string{}
+		for _, arg := range args {
+			if arg != buildCacheCommandFlag {
+				cleanedArgs = append(cleanedArgs, arg)
+			}
+		}
+		args = cleanedArgs
 	}
 
 	cmd := command.New("carthage", args...)
