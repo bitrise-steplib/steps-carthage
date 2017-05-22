@@ -204,10 +204,21 @@ func main() {
 			break
 		}
 	}
+
+	containsCacheFlag := false
+	for _, option := range customOptions {
+		if option == "--cache-builds" {
+			containsCacheFlag = true
+			break
+		}
+	}
 	// ---
 
 	// Exit if bootstrap is cached
-	if configs.CarthageCommand == bootstrapCommand {
+	if containsCacheFlag {
+		fmt.Println()
+		log.Infof("Using Carthage built in cache")
+	} else if configs.CarthageCommand == bootstrapCommand {
 		fmt.Println()
 		log.Infof("Check if cache is available")
 
@@ -250,7 +261,9 @@ func main() {
 	// ---
 
 	// Create cache
-	if configs.CarthageCommand == bootstrapCommand {
+	if containsCacheFlag {
+
+	} else if configs.CarthageCommand == bootstrapCommand {
 		fmt.Println()
 		log.Infof("Creating cache")
 
