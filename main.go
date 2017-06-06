@@ -11,6 +11,7 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-tools/go-steputils/cache"
 	"github.com/bitrise-tools/go-steputils/input"
 	version "github.com/hashicorp/go-version"
 	"github.com/kballard/go-shellquote"
@@ -204,21 +205,10 @@ func main() {
 			break
 		}
 	}
-
-	containsCacheFlag := false
-	for _, option := range customOptions {
-		if option == "--cache-builds" {
-			containsCacheFlag = true
-			break
-		}
-	}
 	// ---
 
 	// Exit if bootstrap is cached
-	if containsCacheFlag {
-		fmt.Println()
-		log.Infof("Using Carthage built in cache")
-	} else if configs.CarthageCommand == bootstrapCommand {
+	if configs.CarthageCommand == bootstrapCommand {
 		fmt.Println()
 		log.Infof("Check if cache is available")
 
@@ -228,6 +218,24 @@ func main() {
 		}
 
 		log.Printf("cache available: %v", cacheAvailable)
+
+		// Collecting caches
+		fmt.Println()
+		log.Infof("Collecting carthage caches...")
+
+		if absCarthageDir, err := filepath.Abs(filepath.Join(projectDir, carthageDirName)); err != nil {
+			log.Warnf("Cache collection skipped: failed to determine cache paths.")
+		} else {
+			if absCacheFilePth, err := filepath.Abs(filepath.Join(projectDir, carthageDirName, cacheFileName)); err != nil {
+				log.Warnf("Cache collection skipped: failed to determine cache paths.")
+			} else {
+				carthageCache := cache.New()
+				carthageCache.IncludePath(fmt.Sprintf("%s -> %s", absCarthageDir, absCacheFilePth))
+				if err := carthageCache.Commit(); err != nil {
+					log.Warnf("Cache collection skipped: failed to commit cache paths.")
+				}
+			}
+		}
 
 		if cacheAvailable {
 			log.Donef("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as CarthageCommand and re-run your build.")
@@ -261,9 +269,7 @@ func main() {
 	// ---
 
 	// Create cache
-	if containsCacheFlag {
-
-	} else if configs.CarthageCommand == bootstrapCommand {
+	if configs.CarthageCommand == bootstrapCommand {
 		fmt.Println()
 		log.Infof("Creating cache")
 

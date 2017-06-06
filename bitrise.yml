@@ -39,6 +39,12 @@ workflows:
     - path::./:
         inputs:
         - carthage_options: --platform ios --project-directory $BITRISE_SOURCE_DIR
+    - script:
+        inputs: 
+        - content: |-
+            #!/bin/bash
+            echo $BITRISE_CACHE_INCLUDE_PATHS
+
 
   go-tests:
     before_run:
