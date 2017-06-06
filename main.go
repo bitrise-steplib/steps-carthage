@@ -12,6 +12,7 @@ import (
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
+	"github.com/bitrise-tools/go-steputils/cache"
 	"github.com/kballard/go-shellquote"
 )
 
@@ -182,6 +183,24 @@ func main() {
 	}
 
 	log.Printf("has cached items: %v", hasCachedItems)
+
+	// Collecting caches
+	fmt.Println()
+	log.Infof("Collecting carthage caches...")
+
+	if absCarthageDir, err := filepath.Abs(filepath.Join(projectDir, carthageDirName)); err != nil {
+		log.Warnf("Cache collection skipped: failed to determine cache paths.")
+	} else {
+		if absCacheFilePth, err := filepath.Abs(filepath.Join(projectDir, carthageDirName, cacheFileName)); err != nil {
+			log.Warnf("Cache collection skipped: failed to determine cache paths.")
+		} else {
+			carthageCache := cache.New()
+			carthageCache.IncludePath(fmt.Sprintf("%s -> %s", absCarthageDir, absCacheFilePth))
+			if err := carthageCache.Commit(); err != nil {
+				log.Warnf("Cache collection skipped: failed to commit cache paths.")
+			}
+		}
+	}
 
 	if configs.CarthageCommand == "bootstrap" && hasCachedItems {
 		log.Donef("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as CarthageCommand and re-run your build.")
