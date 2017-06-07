@@ -1,6 +1,10 @@
-## Changelog (Current version: 3.1.0)
+## Changelog (Current version: 3.1.1)
 
 -----------------
+
+### 3.1.1 (2017 Jun 07)
+
+* [996b70b] Prepare for 3.1.1
 
 ### 3.1.0 (2017 Jun 07)
 
