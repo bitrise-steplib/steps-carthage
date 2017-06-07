@@ -149,23 +149,25 @@ func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 	return cacheFileContent == desiredCacheContent, nil
 }
 
-func collectCarthageCache(projectDir string) {
+func collectCarthageCache(projectDir string) error {
 	fmt.Println()
 	log.Infof("Collecting carthage caches...")
 
-	if absCarthageDir, err := filepath.Abs(filepath.Join(projectDir, carthageDirName)); err != nil {
-		log.Warnf("Cache collection skipped: failed to determine cache paths.")
-	} else {
-		if absCacheFilePth, err := filepath.Abs(filepath.Join(projectDir, carthageDirName, cacheFileName)); err != nil {
-			log.Warnf("Cache collection skipped: failed to determine cache paths.")
-		} else {
-			carthageCache := cache.New()
-			carthageCache.IncludePath(fmt.Sprintf("%s -> %s", absCarthageDir, absCacheFilePth))
-			if err := carthageCache.Commit(); err != nil {
-				log.Warnf("Cache collection skipped: failed to commit cache paths.")
-			}
-		}
+	absCarthageDir, err := filepath.Abs(filepath.Join(projectDir, carthageDirName))
+	if err != nil {
+		return fmt.Errorf("failed to determine cache paths")
 	}
+	absCacheFilePth, err := filepath.Abs(filepath.Join(projectDir, carthageDirName, cacheFileName))
+	if err != nil {
+		return fmt.Errorf("failed to determine cache paths")
+	}
+	carthageCache := cache.New()
+	carthageCache.IncludePath(fmt.Sprintf("%s -> %s", absCarthageDir, absCacheFilePth))
+	if err := carthageCache.Commit(); err != nil {
+		return fmt.Errorf("failed to commit cache paths")
+	}
+
+	return nil
 }
 
 func main() {
@@ -239,7 +241,9 @@ func main() {
 		log.Printf("cache available: %v", cacheAvailable)
 
 		if cacheAvailable {
-			collectCarthageCache(projectDir)
+			if err := collectCarthageCache(projectDir); err != nil {
+				log.Warnf("Cache collection skipped: %s", err)
+			}
 			log.Donef("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as CarthageCommand and re-run your build.")
 			os.Exit(0)
 		}
@@ -305,7 +309,9 @@ func main() {
 
 		log.Donef("Cachefile created: %s", cacheFilePth)
 
-		collectCarthageCache(projectDir)
+		if err := collectCarthageCache(projectDir); err != nil {
+			log.Warnf("Cache collection skipped: %s", err)
+		}
 	}
 	// ---
 }
