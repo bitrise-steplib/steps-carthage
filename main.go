@@ -149,6 +149,25 @@ func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 	return cacheFileContent == desiredCacheContent, nil
 }
 
+func collectCarthageCache(projectDir string) {
+	fmt.Println()
+	log.Infof("Collecting carthage caches...")
+
+	if absCarthageDir, err := filepath.Abs(filepath.Join(projectDir, carthageDirName)); err != nil {
+		log.Warnf("Cache collection skipped: failed to determine cache paths.")
+	} else {
+		if absCacheFilePth, err := filepath.Abs(filepath.Join(projectDir, carthageDirName, cacheFileName)); err != nil {
+			log.Warnf("Cache collection skipped: failed to determine cache paths.")
+		} else {
+			carthageCache := cache.New()
+			carthageCache.IncludePath(fmt.Sprintf("%s -> %s", absCarthageDir, absCacheFilePth))
+			if err := carthageCache.Commit(); err != nil {
+				log.Warnf("Cache collection skipped: failed to commit cache paths.")
+			}
+		}
+	}
+}
+
 func main() {
 	configs := createConfigsModelFromEnvs()
 
@@ -219,25 +238,8 @@ func main() {
 
 		log.Printf("cache available: %v", cacheAvailable)
 
-		// Collecting caches
-		fmt.Println()
-		log.Infof("Collecting carthage caches...")
-
-		if absCarthageDir, err := filepath.Abs(filepath.Join(projectDir, carthageDirName)); err != nil {
-			log.Warnf("Cache collection skipped: failed to determine cache paths.")
-		} else {
-			if absCacheFilePth, err := filepath.Abs(filepath.Join(projectDir, carthageDirName, cacheFileName)); err != nil {
-				log.Warnf("Cache collection skipped: failed to determine cache paths.")
-			} else {
-				carthageCache := cache.New()
-				carthageCache.IncludePath(fmt.Sprintf("%s -> %s", absCarthageDir, absCacheFilePth))
-				if err := carthageCache.Commit(); err != nil {
-					log.Warnf("Cache collection skipped: failed to commit cache paths.")
-				}
-			}
-		}
-
 		if cacheAvailable {
+			collectCarthageCache(projectDir)
 			log.Donef("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as CarthageCommand and re-run your build.")
 			os.Exit(0)
 		}
@@ -302,6 +304,8 @@ func main() {
 		}
 
 		log.Donef("Cachefile created: %s", cacheFilePth)
+
+		collectCarthageCache(projectDir)
 	}
 	// ---
 }
