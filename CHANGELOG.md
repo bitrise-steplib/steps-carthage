@@ -1,6 +1,11 @@
-## Changelog (Current version: 3.0.6)
+## Changelog (Current version: 3.1.0)
 
 -----------------
+
+### 3.1.0 (2017 Jun 07)
+
+* [2455391] Prepare for 3.1.0
+* [6f67a0a] Make cache follow swift version + added built-in cache (#44)
 
 ### 3.0.6 (2017 Mar 06)
 
@@ -160,4 +165,4 @@
 
 -----------------
 
-Updated: 2017 Mar 06
+Updated: 2017 Jun 07
