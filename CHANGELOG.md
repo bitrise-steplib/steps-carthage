@@ -1,6 +1,10 @@
-## Changelog (Current version: 3.1.1)
+## Changelog (Current version: 3.1.2)
 
 -----------------
+
+### 3.1.2 (2017 Jun 08)
+
+* [1a5dfb8] Prepare for 3.1.2
 
 ### 3.1.1 (2017 Jun 07)
 
@@ -169,4 +173,4 @@
 
 -----------------
 
-Updated: 2017 Jun 07
+Updated: 2017 Jun 08
