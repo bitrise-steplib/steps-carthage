@@ -1,6 +1,11 @@
-## Changelog (Current version: 3.1.2)
+## Changelog (Current version: 3.1.3)
 
 -----------------
+
+### 3.1.3 (2017 Dec 04)
+
+* [b4d8a4c] Prepare for 3.1.3
+* [c48872a] added description (#45)
 
 ### 3.1.2 (2017 Jun 08)
 
@@ -173,4 +178,4 @@
 
 -----------------
 
-Updated: 2017 Jun 08
+Updated: 2017 Dec 04
