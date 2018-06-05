@@ -288,7 +288,7 @@ func main() {
 		}
 		if resolvedFileContent == "" {
 			log.Warnf("Cartfile.resolved is empty or not exists at: %s", resolvedFilePath)
-			log.Warnf("Skipping cahceing")
+			log.Warnf("Skipping caching")
 			os.Exit(1)
 		}
 
