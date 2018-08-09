@@ -31,9 +31,9 @@ inputs:
   - carthage_command: "bootstrap"
     opts:
       title: Carthage command to run
-      summary: Select a command to set up your dependencies with. The step will cache your dependencies only when using `bootstrap` in this input and you have `cache-pull` and `cache-push` steps in your workflow.
+      summary: Select a command to set up your dependencies. The step will cache your dependencies only when using `bootstrap` in this input and you have `cache-pull` and `cache-push` steps in your workflow.
       description: |-
-        Select a command to set up your dependencies with.
+        Select a command to set up your dependencies.
 
         The step will cache your dependencies only when using `bootstrap` in this input and you have `cache-pull` and `cache-push` steps in your workflow.
 
@@ -45,7 +45,7 @@ inputs:
         Options added to the end of the Carthage call.
         You can use multiple options, separated by a space character.
 
-        To see available command's options, call: `carthage help COMMAND` 
+        To see available command's options, call `carthage help COMMAND` 
 
         Format example: `--platform ios`
   - github_access_token: $GITHUB_ACCESS_TOKEN
