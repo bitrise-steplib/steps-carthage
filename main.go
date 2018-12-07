@@ -13,6 +13,7 @@ import (
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-tools/go-steputils/cache"
 	"github.com/bitrise-tools/go-steputils/input"
+	"github.com/bitrise-tools/go-steputils/stepconf"
 	version "github.com/hashicorp/go-version"
 	"github.com/kballard/go-shellquote"
 )
@@ -28,19 +29,10 @@ const (
 
 // ConfigsModel ...
 type ConfigsModel struct {
-	GithubAccessToken string
-	CarthageCommand   string
-	CarthageOptions   string
-	SourceDir         string
-}
-
-func createConfigsModelFromEnvs() ConfigsModel {
-	return ConfigsModel{
-		CarthageCommand:   os.Getenv("carthage_command"),
-		CarthageOptions:   os.Getenv("carthage_options"),
-		GithubAccessToken: os.Getenv("github_access_token"),
-		SourceDir:         os.Getenv("BITRISE_SOURCE_DIR"),
-	}
+	GithubAccessToken stepconf.Secret `env:"github_access_token"`
+	CarthageCommand   string          `env:"carthage_command"`
+	CarthageOptions   string          `env:"carthage_options"`
+	SourceDir         string          `env:"BITRISE_SOURCE_DIR"`
 }
 
 func (configs ConfigsModel) print() {
@@ -171,10 +163,12 @@ func collectCarthageCache(projectDir string) error {
 }
 
 func main() {
-	configs := createConfigsModelFromEnvs()
-
-	fmt.Println()
-	configs.print()
+	var configs ConfigsModel
+	if err := stepconf.Parse(&configs); err != nil {
+		log.Errorf("Could not create config: %s", err)
+		os.Exit(1)
+	}
+	stepconf.Print(configs)
 
 	if err := configs.validate(); err != nil {
 		fail("Issue with input: %s", err)

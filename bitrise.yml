@@ -43,6 +43,7 @@ workflows:
     - path::./:
         inputs:
         - carthage_options: --platform ios --project-directory $BITRISE_SOURCE_DIR
+        - github_access_token: sometokena11c6345db576f8eca8f5d8
     - script:
         inputs: 
         - content: |-
