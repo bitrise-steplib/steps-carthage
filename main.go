@@ -165,8 +165,7 @@ func collectCarthageCache(projectDir string) error {
 func main() {
 	var configs Config
 	if err := stepconf.Parse(&configs); err != nil {
-		log.Errorf("Could not create config: %s", err)
-		os.Exit(1)
+		fail("Could not create config: %s", err)
 	}
 	stepconf.Print(configs)
 
