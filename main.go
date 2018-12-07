@@ -27,15 +27,15 @@ const (
 	bootstrapCommand = "bootstrap"
 )
 
-// ConfigsModel ...
-type ConfigsModel struct {
+// Config ...
+type Config struct {
 	GithubAccessToken stepconf.Secret `env:"github_access_token"`
 	CarthageCommand   string          `env:"carthage_command"`
 	CarthageOptions   string          `env:"carthage_options"`
 	SourceDir         string          `env:"BITRISE_SOURCE_DIR"`
 }
 
-func (configs ConfigsModel) print() {
+func (configs Config) print() {
 	log.Infof("Configs:")
 	log.Printf("- CarthageCommand: %s", configs.CarthageCommand)
 	log.Printf("- CarthageOptions: %s", configs.CarthageOptions)
@@ -47,7 +47,7 @@ func fail(format string, v ...interface{}) {
 	os.Exit(1)
 }
 
-func (configs ConfigsModel) validate() error {
+func (configs Config) validate() error {
 	if err := input.ValidateIfNotEmpty(configs.CarthageCommand); err != nil {
 		return fmt.Errorf("CarthageCommand, %s", err)
 	}
@@ -163,7 +163,7 @@ func collectCarthageCache(projectDir string) error {
 }
 
 func main() {
-	var configs ConfigsModel
+	var configs Config
 	if err := stepconf.Parse(&configs); err != nil {
 		log.Errorf("Could not create config: %s", err)
 		os.Exit(1)
