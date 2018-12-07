@@ -12,7 +12,6 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-tools/go-steputils/cache"
-	"github.com/bitrise-tools/go-steputils/input"
 	"github.com/bitrise-tools/go-steputils/stepconf"
 	version "github.com/hashicorp/go-version"
 	"github.com/kballard/go-shellquote"
@@ -35,24 +34,9 @@ type Config struct {
 	SourceDir         string          `env:"BITRISE_SOURCE_DIR"`
 }
 
-func (configs Config) print() {
-	log.Infof("Configs:")
-	log.Printf("- CarthageCommand: %s", configs.CarthageCommand)
-	log.Printf("- CarthageOptions: %s", configs.CarthageOptions)
-	log.Printf("- GithubAccessToken: %s", configs.GithubAccessToken)
-}
-
 func fail(format string, v ...interface{}) {
 	log.Errorf(format, v...)
 	os.Exit(1)
-}
-
-func (configs Config) validate() error {
-	if err := input.ValidateIfNotEmpty(configs.CarthageCommand); err != nil {
-		return fmt.Errorf("CarthageCommand, %s", err)
-	}
-
-	return nil
 }
 
 func getSwiftVersion() (string, error) {
@@ -168,10 +152,6 @@ func main() {
 		fail("Could not create config: %s", err)
 	}
 	stepconf.Print(configs)
-
-	if err := configs.validate(); err != nil {
-		fail("Issue with input: %s", err)
-	}
 
 	// Environment
 	fmt.Println()
