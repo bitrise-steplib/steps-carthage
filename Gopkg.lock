@@ -2,7 +2,7 @@
 
 
 [[projects]]
-  digest = "1:8b35ad89495d3dde58c324a28097ec6e4e2c5ea21ca3878f4fa59ebb82d59d6d"
+  digest = "1:2f4bc06f0948e7463b3e6689a574d40877b6633059c45ee805169e6450620863"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
@@ -10,21 +10,25 @@
     "errorutil",
     "fileutil",
     "log",
+    "parseutil",
     "pathutil",
+    "pointers",
   ]
   pruneopts = "UT"
   revision = "9c30a7825aa1064e423a0f1dba751fec990b07be"
 
 [[projects]]
-  digest = "1:745a27ccb73de66f747cb9319cb0d60742445bf4bc7bde191a63c995fe5aceed"
+  branch = "master"
+  digest = "1:4e326d23796b4d917aaa13a6e923bee42559cfedd49d6190f913baa70bed3d50"
   name = "github.com/bitrise-tools/go-steputils"
   packages = [
     "cache",
     "input",
+    "stepconf",
     "tools",
   ]
   pruneopts = "UT"
-  revision = "a848c9870ff7d745a8fb2a951e1c81fcb147b4ec"
+  revision = "ec226b2359fcd806be64f0ad2217d8e741a1ff11"
 
 [[projects]]
   digest = "1:826df03282c5a336f1d23a07ce0ec0a26c7230e1a5d5a79a8ea4b68c0c8462b3"
@@ -50,6 +54,7 @@
     "github.com/bitrise-io/go-utils/pathutil",
     "github.com/bitrise-tools/go-steputils/cache",
     "github.com/bitrise-tools/go-steputils/input",
+    "github.com/bitrise-tools/go-steputils/stepconf",
     "github.com/hashicorp/go-version",
     "github.com/kballard/go-shellquote",
   ]
