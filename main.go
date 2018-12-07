@@ -29,7 +29,7 @@ const (
 // Config ...
 type Config struct {
 	GithubAccessToken stepconf.Secret `env:"github_access_token"`
-	CarthageCommand   string          `env:"carthage_command"`
+	CarthageCommand   string          `env:"carthage_command,required"`
 	CarthageOptions   string          `env:"carthage_options"`
 	SourceDir         string          `env:"BITRISE_SOURCE_DIR"`
 }
