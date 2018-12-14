@@ -12,7 +12,7 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-tools/go-steputils/cache"
-	"github.com/bitrise-tools/go-steputils/input"
+	"github.com/bitrise-tools/go-steputils/stepconf"
 	version "github.com/hashicorp/go-version"
 	"github.com/kballard/go-shellquote"
 )
@@ -26,41 +26,17 @@ const (
 	bootstrapCommand = "bootstrap"
 )
 
-// ConfigsModel ...
-type ConfigsModel struct {
-	GithubAccessToken string
-	CarthageCommand   string
-	CarthageOptions   string
-	SourceDir         string
-}
-
-func createConfigsModelFromEnvs() ConfigsModel {
-	return ConfigsModel{
-		CarthageCommand:   os.Getenv("carthage_command"),
-		CarthageOptions:   os.Getenv("carthage_options"),
-		GithubAccessToken: os.Getenv("github_access_token"),
-		SourceDir:         os.Getenv("BITRISE_SOURCE_DIR"),
-	}
-}
-
-func (configs ConfigsModel) print() {
-	log.Infof("Configs:")
-	log.Printf("- CarthageCommand: %s", configs.CarthageCommand)
-	log.Printf("- CarthageOptions: %s", configs.CarthageOptions)
-	log.Printf("- GithubAccessToken: %s", configs.GithubAccessToken)
+// Config ...
+type Config struct {
+	GithubAccessToken stepconf.Secret `env:"github_access_token"`
+	CarthageCommand   string          `env:"carthage_command,required"`
+	CarthageOptions   string          `env:"carthage_options"`
+	SourceDir         string          `env:"BITRISE_SOURCE_DIR"`
 }
 
 func fail(format string, v ...interface{}) {
 	log.Errorf(format, v...)
 	os.Exit(1)
-}
-
-func (configs ConfigsModel) validate() error {
-	if err := input.ValidateIfNotEmpty(configs.CarthageCommand); err != nil {
-		return fmt.Errorf("CarthageCommand, %s", err)
-	}
-
-	return nil
 }
 
 func getSwiftVersion() (string, error) {
@@ -171,14 +147,11 @@ func collectCarthageCache(projectDir string) error {
 }
 
 func main() {
-	configs := createConfigsModelFromEnvs()
-
-	fmt.Println()
-	configs.print()
-
-	if err := configs.validate(); err != nil {
-		fail("Issue with input: %s", err)
+	var configs Config
+	if err := stepconf.Parse(&configs); err != nil {
+		fail("Could not create config: %s", err)
 	}
+	stepconf.Print(configs)
 
 	// Environment
 	fmt.Println()

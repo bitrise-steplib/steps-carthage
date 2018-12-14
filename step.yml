@@ -38,6 +38,7 @@ inputs:
         The step will cache your dependencies only when using `bootstrap` in this input and you have `cache-pull` and `cache-push` steps in your workflow.
 
         To see available commands run: `carthage help` on your local machine.
+      is_required: true
   - carthage_options:
     opts:
       title: Additional options for `carthage` command
