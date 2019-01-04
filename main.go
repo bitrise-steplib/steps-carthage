@@ -233,7 +233,7 @@ func main() {
 	if configs.GithubAccessToken != "" {
 		log.Printf("Appending GITHUB_ACCESS_TOKEN to process environments")
 
-		cmd.AppendEnvs(fmt.Sprintf("GITHUB_ACCESS_TOKEN=%s", configs.GithubAccessToken))
+		cmd.AppendEnvs(fmt.Sprintf("GITHUB_ACCESS_TOKEN=%s", string(configs.GithubAccessToken)))
 	}
 
 	cmd.SetStdout(os.Stdout)
