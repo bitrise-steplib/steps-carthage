@@ -66,7 +66,7 @@ func contentOfFile(pth string) (string, error) {
 	if exist, err := pathutil.IsPathExists(pth); err != nil {
 		return "", err
 	} else if !exist {
-		return "", nil
+		return "", fmt.Errorf("File not exists: %s", pth)
 	}
 
 	return fileutil.ReadStringFromFile(pth)
@@ -105,20 +105,30 @@ func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	log.Debugf(cacheFileName + " exists in " + cacheFilePth + "\n")
+
 	if cacheFileContent == "" {
 		return false, nil
 	}
+	log.Debugf(cacheFileName + " content: " + cacheFileContent + "\n")
+
 	// --
 
 	// read Cartfile.resolved
 	resolvedFilePath := filepath.Join(srcDir, resolvedFileName)
+	log.Debugf(resolvedFileName + " exists in " + resolvedFilePath + "\n")
+
 	resolvedFileContent, err := contentOfFile(resolvedFilePath)
 	if err != nil {
 		return false, err
+
 	}
+	log.Debugf(resolvedFileName + " content: " + resolvedFileContent + "\n")
+
 	if resolvedFileContent == "" {
 		return false, nil
 	}
+
 	// ---
 
 	desiredCacheContent := fmt.Sprintf("--Swift version: %s --Swift version \n --%s: %s --%s", swiftVersion, resolvedFileName, resolvedFileContent, resolvedFileName)
@@ -152,6 +162,8 @@ func main() {
 		fail("Could not create config: %s", err)
 	}
 	stepconf.Print(configs)
+
+	log.SetEnableDebugLog(true)
 
 	// Environment
 	fmt.Println()
