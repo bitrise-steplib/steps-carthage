@@ -32,6 +32,9 @@ type Config struct {
 	CarthageCommand   string          `env:"carthage_command,required"`
 	CarthageOptions   string          `env:"carthage_options"`
 	SourceDir         string          `env:"BITRISE_SOURCE_DIR"`
+
+	// Debug
+	VerboseLog bool `env:"verbose_log,opt[yes,no]"`
 }
 
 func fail(format string, v ...interface{}) {
@@ -163,7 +166,7 @@ func main() {
 	}
 	stepconf.Print(configs)
 
-	log.SetEnableDebugLog(true)
+	log.SetEnableDebugLog(configs.VerboseLog)
 
 	// Environment
 	fmt.Println()
