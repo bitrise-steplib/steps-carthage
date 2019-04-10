@@ -223,7 +223,7 @@ func main() {
 
 		cacheAvailable, err := isCacheAvailable(projectDir, swiftVersion)
 		if err != nil {
-			fail("Failed to check if cached is available, error: %s", err)
+			log.Warnf("Failed to check if cached is available, error: %s", err)
 		}
 
 		log.Printf("cache available: %v", cacheAvailable)
