@@ -135,7 +135,18 @@ func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 	// ---
 
 	desiredCacheContent := fmt.Sprintf("--Swift version: %s --Swift version \n --%s: %s --%s", swiftVersion, resolvedFileName, resolvedFileContent, resolvedFileName)
-	return cacheFileContent == desiredCacheContent, nil
+	if cacheFileContent != desiredCacheContent {
+		log.Debugf(
+			"Cachefile is not valid.\n" +
+				"Desired cache content:\n" +
+				desiredCacheContent +
+				"CacheFile content:\n" +
+				cacheFileContent,
+		)
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func collectCarthageCache(projectDir string) error {
