@@ -119,7 +119,6 @@ func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 
 	// read Cartfile.resolved
 	resolvedFilePath := filepath.Join(srcDir, resolvedFileName)
-	log.Debugf(resolvedFileName + " exists in " + resolvedFilePath + "\n")
 
 	resolvedFileContent, err := contentOfFile(resolvedFilePath)
 	if err != nil {
