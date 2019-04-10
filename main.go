@@ -161,8 +161,17 @@ func collectCarthageCache(projectDir string) error {
 	if err != nil {
 		return fmt.Errorf("failed to determine cache paths")
 	}
+
 	carthageCache := cache.New()
+
+	// Cachefile
 	carthageCache.IncludePath(fmt.Sprintf("%s -> %s", absCarthageDir, absCacheFilePth))
+
+	// Cartfile.resolved
+	resolvedFilePath := filepath.Join(projectDir, resolvedFileName)
+	carthageCache.IncludePath(resolvedFilePath)
+
+	// Commit cache paths
 	if err := carthageCache.Commit(); err != nil {
 		return fmt.Errorf("failed to commit cache paths")
 	}
