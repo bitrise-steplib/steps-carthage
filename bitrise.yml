@@ -39,7 +39,7 @@ workflows:
     - script:
         title: Clone sapmle app
         inputs:
-        - content: git clone $SAMPLE_APP_URL -b cached_deps .
+        - content: git clone $SAMPLE_APP_URL .
     - path::./:
         inputs:
         - carthage_options: --platform ios --project-directory $BITRISE_SOURCE_DIR
