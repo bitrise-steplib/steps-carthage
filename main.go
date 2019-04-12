@@ -3,16 +3,17 @@ package main
 // ConfigsModel ...
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/bitrise-io/go-steputils/cache"
+	"github.com/bitrise-io/go-steputils/stepconf"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-tools/go-steputils/cache"
-	"github.com/bitrise-tools/go-steputils/stepconf"
 	version "github.com/hashicorp/go-version"
 	"github.com/kballard/go-shellquote"
 )
@@ -75,22 +76,6 @@ func contentOfFile(pth string) (string, error) {
 	return fileutil.ReadStringFromFile(pth)
 }
 
-func isDirEmpty(dirPth string) (bool, error) {
-	if exist, err := pathutil.IsDirExists(dirPth); err != nil {
-		return false, err
-	} else if !exist {
-		return false, nil
-	}
-
-	pattern := filepath.Join(dirPth, "*")
-	files, err := filepath.Glob(pattern)
-	if err != nil {
-		return false, err
-	}
-
-	return (len(files) == 0), nil
-}
-
 func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 	log.Printf("Check cache specific files")
 	buildDirAvailable, cacheFileAvailable, resolvedFileAvailable := true, true, true
@@ -99,9 +84,12 @@ func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 	fmt.Print("- Carthage/Build director: ")
 	carthageDir := filepath.Join(srcDir, carthageDirName)
 	carthageBuildDir := filepath.Join(carthageDir, buildDirName)
-	if empty, err := isDirEmpty(carthageBuildDir); err != nil {
-		return false, err
-	} else if empty {
+
+	files, err := ioutil.ReadDir(carthageBuildDir)
+	if err != nil {
+		buildDirAvailable = false
+		log.Errorf("not found")
+	} else if len(files) == 0 {
 		buildDirAvailable = false
 		log.Errorf("empty")
 	} else {
