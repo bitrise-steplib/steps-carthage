@@ -81,7 +81,7 @@ func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 	buildDirAvailable, cacheFileAvailable, resolvedFileAvailable := true, true, true
 
 	// check for built dependencies (Carthage/Build/*)
-	fmt.Print("- Carthage/Build director: ")
+	fmt.Print("- Carthage/Build directory: ")
 	carthageDir := filepath.Join(srcDir, carthageDirName)
 	carthageBuildDir := filepath.Join(carthageDir, buildDirName)
 
@@ -164,7 +164,7 @@ func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 		log.Warnf("No "+resolvedFileName+" found at: %s", resolvedFilePath)
 		log.Warnf("Make sure it's committed into your repository!")
 		log.Warnf(resolvedFileName + " presence ensures that Bitrise will use exactly the same versions of dependencies as you in your local environment. ")
-		log.Warnf("The dependencies will not be cached until the " + resolvedFileName + " file is uploaded.")
+		log.Warnf("The dependencies will not be cached until the " + resolvedFileName + " file presents in the repository.")
 	}
 
 	if buildDirAvailable && cacheFileAvailable && resolvedFileAvailable {
