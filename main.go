@@ -99,7 +99,7 @@ func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 	// ---
 
 	// read cache indicator file (Carthage/Cachefile)
-	fmt.Print("- Cachfile: ")
+	fmt.Print("- Cachefile: ")
 	var cacheFileContent string
 
 	cacheFilePth := filepath.Join(carthageDir, cacheFileName)
@@ -116,7 +116,7 @@ func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 		if err != nil {
 			return false, err
 		} else if cacheFileContent == "" {
-			log.Errorf("Cachfile is empty")
+			log.Errorf("Cachefile is empty")
 		} else {
 			log.Debugf(cacheFileName + " content: " + cacheFileContent + "\n")
 		}
