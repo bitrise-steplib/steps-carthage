@@ -129,7 +129,7 @@ func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
 	var resolvedFileContent string
 
 	resolvedFilePath := filepath.Join(srcDir, resolvedFileName)
-	if exist, err := pathutil.IsPathExists(resolvedFileName); err != nil {
+	if exist, err := pathutil.IsPathExists(resolvedFilePath); err != nil {
 		return false, err
 	} else if !exist {
 		log.Errorf("not found")
