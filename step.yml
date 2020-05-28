@@ -7,8 +7,8 @@ description: |-
   ### Configuring the Step
   1. Add the **Carthage** Step in your Workflow.
   2. Select `bootstrap` Carthage command in the **Carthage command to run** input. Make sure you have the **Bitrise.io Cache:Pull** Step before and the **Bitrise.io Cache:Push** Step after the **Carthage** Step in your Workflow to cache files and speed up your Bitrise build.
-  2. Provide your GitHub credentials in the **GitHub Personal Access Token** input. Don't worry, your credentials are safe with us since we store them encrypted and do not print them out in build logs.
-  3. Optionally, you can provide any extra Carthage command you wish to run in the **Additional options for Carthage command** input.
+  2. Provide your GitHub credentials in the **GitHub Personal Access Token** input to avoid GitHub rate limit issues. Don't worry, your credentials are safe with us since we store them encrypted and do not print them out in build logs.
+  3. Optionally, you can provide any extra flag for the Carthage command you wish to run in the **Additional options for Carthage command** input.
   5. To get more information printed out, set the **Enable verbose logging** to `yes`.
 
   ### Troubleshooting
