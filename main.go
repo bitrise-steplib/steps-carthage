@@ -33,6 +33,7 @@ type Config struct {
 	CarthageCommand   string          `env:"carthage_command,required"`
 	CarthageOptions   string          `env:"carthage_options"`
 	SourceDir         string          `env:"BITRISE_SOURCE_DIR"`
+	Xcconfig          string          `env:"xcconfig"`
 
 	// Debug
 	VerboseLog bool `env:"verbose_log,opt[yes,no]"`
