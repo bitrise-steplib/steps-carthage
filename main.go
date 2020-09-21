@@ -306,8 +306,9 @@ func main() {
 	if configs.Xcconfig != "" {
 		log.Printf("Appending XCODE_XCCONFIG_FILE to process environments")
 	
+		xcconfigPath := filepath.Join(projectDir, string(configs.Xcconfig))
 		cmd.AppendEnvs(fmt.Sprintf("XCODE_XCCONFIG_FILE=%s",
-		string(configs.Xcconfig)))
+		xcconfigPath))
 	}
 	
 	cmd.SetStdout(os.Stdout)
