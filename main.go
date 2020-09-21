@@ -301,7 +301,14 @@ func main() {
 
 		cmd.AppendEnvs(fmt.Sprintf("GITHUB_ACCESS_TOKEN=%s", string(configs.GithubAccessToken)))
 	}
-
+	
+	if configs.Xcconfig != "" {
+		log.Printf("Appending XCODE_XCCONFIG_FILE to process environments")
+	
+		cmd.AppendEnvs(fmt.Sprintf("XCODE_XCCONFIG_FILE=%s",
+		string(configs.Xcconfig)))
+	}
+	
 	cmd.SetStdout(os.Stdout)
 	cmd.SetStderr(os.Stderr)
 

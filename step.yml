@@ -91,3 +91,9 @@ inputs:
       value_options:
       - "yes"
       - "no"
+  - xcconfig:
+    opts:
+      title: Custom xcconfig file to add to Carthage environment
+      description: |
+        Use this to point to a custom xcconfig file to workaround Xcode 12 issue
+        see [the Github issue](https://github.com/Carthage/Carthage/issues/3019) for more info
