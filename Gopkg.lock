@@ -3,7 +3,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:53c3bf4c89488ab7d4459f4c7bf694dd4e69a5f35bd4d154b11c9673ac2ce040"
+  digest = "1:a6c4b93cbf1598f39f75f8eb10aad73caf515d130c945da2fb9eb96743b23dc7"
   name = "github.com/bitrise-io/go-steputils"
   packages = [
     "cache",
@@ -11,11 +11,11 @@
     "tools",
   ]
   pruneopts = "UT"
-  revision = "cecc766da84859e37e780d9d1c416f0f3993e6b1"
+  revision = "6d5afa53c7b85b6135e382105116d245b5997ace"
 
 [[projects]]
   branch = "master"
-  digest = "1:44e784ce734f9dcf3797fa949d1f42a838a84003bda6935fb929b529c8f77b6a"
+  digest = "1:132ae4166c8635a9c5beec1ed98b0ac492be808a0404047ad821b6ca3d5dc37d"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
@@ -28,15 +28,15 @@
     "pointers",
   ]
   pruneopts = "UT"
-  revision = "2a09aab8380d7842750328aebd5671bcccea89c8"
+  revision = "0c47c16813a4209321c9d0dba2e75867d6901ff2"
 
 [[projects]]
   branch = "master"
-  digest = "1:77395dd3847dac9c45118c668f5dab85aedf0163dc3b38aea6578c5cf0d502f9"
+  digest = "1:95732e0c27df672b3fdf5cdd8edd18cba5fc07263ef7cd25eaaad4afc4730313"
   name = "github.com/hashicorp/go-version"
   packages = ["."]
   pruneopts = "UT"
-  revision = "b5a281d3160aa11950a6182bd9a9dc2cb1e02d50"
+  revision = "59da58cfd357de719a4d16dac30481391a56c002"
 
 [[projects]]
   branch = "master"
