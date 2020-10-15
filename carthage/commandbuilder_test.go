@@ -1,0 +1,36 @@
+package carthage
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/bitrise-io/go-steputils/stepconf"
+	"github.com/stretchr/testify/assert"
+)
+
+func Test_WhenArgumentAppended_ThenResultCommandContainsArgument(t *testing.T) {
+	// Given
+	expectedCommand := `carthage "version"`
+	builder := NewCLIBuilder()
+
+	// When
+	command := builder.Append("version").Command()
+
+	// Then
+	assert.Equal(t, expectedCommand, command.PrintableCommandArgs())
+}
+
+func Test_WhenGitHubTokenAppended_ThenResultCommandContainsToken(t *testing.T) {
+	// Given
+	var expectedToken stepconf.Secret = "nice_token"
+	expectedEnv := fmt.Sprintf("GITHUB_ACCESS_TOKEN=%s", string(expectedToken))
+	expectedCommand := `carthage "version"`
+	builder := NewCLIBuilder()
+
+	// When
+	command := builder.AddGitHubToken(expectedToken).Append("version").Command()
+
+	// Then
+	assert.Equal(t, expectedCommand, command.PrintableCommandArgs())
+	assert.Contains(t, command.GetCmd().Env, expectedEnv)
+}
