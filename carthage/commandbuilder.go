@@ -10,21 +10,29 @@ import (
 
 // CLIBuilder ...
 type CLIBuilder struct {
-	githubToken stepconf.Secret
-	cmd         *command.Model
+	cmd *command.Model
 }
 
 // NewCLIBuilder ...
 func NewCLIBuilder() CLIBuilder {
 	return CLIBuilder{
-		githubToken: "",
-		cmd:         command.New("carthage"),
+		cmd: command.New("carthage"),
 	}
 }
 
 // AddGitHubToken ...
 func (builder CLIBuilder) AddGitHubToken(githubToken stepconf.Secret) cachedcarthage.CommandBuilder {
-	builder.githubToken = githubToken
+	if githubToken != "" {
+		builder.cmd.AppendEnvs(fmt.Sprintf("GITHUB_ACCESS_TOKEN=%s", string(githubToken)))
+	}
+	return builder
+}
+
+// AddXCConfigFile ...
+func (builder CLIBuilder) AddXCConfigFile(path string) cachedcarthage.CommandBuilder {
+	if path != "" {
+		builder.cmd.AppendEnvs(fmt.Sprintf("XCODE_XCCONFIG_FILE=%s", path))
+	}
 	return builder
 }
 
@@ -36,8 +44,5 @@ func (builder CLIBuilder) Append(args ...string) cachedcarthage.CommandBuilder {
 
 // Command ...
 func (builder CLIBuilder) Command() *command.Model {
-	if builder.githubToken != "" {
-		builder.cmd.AppendEnvs(fmt.Sprintf("GITHUB_ACCESS_TOKEN=%s", string(builder.githubToken)))
-	}
 	return builder.cmd
 }

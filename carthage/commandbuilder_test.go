@@ -34,3 +34,18 @@ func Test_WhenGitHubTokenAppended_ThenResultCommandContainsToken(t *testing.T) {
 	assert.Equal(t, expectedCommand, command.PrintableCommandArgs())
 	assert.Contains(t, command.GetCmd().Env, expectedEnv)
 }
+
+func Test_WhenXCConfigFileAppended_ThenResultCommandContainsPath(t *testing.T) {
+	// Given
+	path := "/path/file.xcconfig"
+	expectedEnv := fmt.Sprintf("XCODE_XCCONFIG_FILE=%s", path)
+	expectedCommand := `carthage "version"`
+	builder := NewCLIBuilder()
+
+	// When
+	command := builder.AddXCConfigFile(path).Append("version").Command()
+
+	// Then
+	assert.Equal(t, expectedCommand, command.PrintableCommandArgs())
+	assert.Contains(t, command.GetCmd().Env, expectedEnv)
+}
