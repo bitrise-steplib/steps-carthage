@@ -6,6 +6,7 @@ import (
 
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/stretchr/testify/assert"
+	mock "github.com/stretchr/testify/mock"
 )
 
 // Run
@@ -151,8 +152,11 @@ func Test_GivenCarthageCacheAvailableSucceeds_WhenIsCacheAvailableCalled_ThenExp
 func Test_GivenCommadSucceeds_WhenExecuteCommandCalled_ThenExpectNoError(t *testing.T) {
 	// Given
 	mockCommandBuilder := givenStubedCommandBuilder()
+	command := "version"
+	args := []string{"arg1"}
 	runner := Runner{
-		command:        "version",
+		command:        command,
+		args:           args,
 		commandBuilder: mockCommandBuilder,
 	}
 
@@ -161,6 +165,10 @@ func Test_GivenCommadSucceeds_WhenExecuteCommandCalled_ThenExpectNoError(t *test
 
 	// Then
 	assert.NoError(t, error)
+	mockCommandBuilder.AssertCalled(t, "AddGitHubToken", mock.Anything)
+	mockCommandBuilder.AssertCalled(t, "AddXCConfigFile", mock.Anything)
+	mockCommandBuilder.AssertCalled(t, "Append", []string{command})
+	mockCommandBuilder.AssertCalled(t, "Append", args)
 }
 
 // helpers
@@ -172,6 +180,7 @@ func givenStubedCommandBuilder() *MockCommandBuilder {
 	command := command.New("echo", "hello")
 	mockCommandBuilder := new(MockCommandBuilder).
 		GivenAddGitHubTokenSucceeds().
+		GivenAddXCConfigFileSucceeds().
 		GivenAppendSucceeds().
 		GivenCommandReturned(command)
 	return mockCommandBuilder
@@ -181,6 +190,7 @@ func givenStubedCommandBuilderReturnFailingCommand() *MockCommandBuilder {
 	command := command.New("fail")
 	mockCommandBuilder := new(MockCommandBuilder).
 		GivenAddGitHubTokenSucceeds().
+		GivenAddXCConfigFileSucceeds().
 		GivenAppendSucceeds().
 		GivenCommandReturned(command)
 	return mockCommandBuilder

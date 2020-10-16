@@ -14,60 +14,35 @@ type MockCommandBuilder struct {
 
 // AddGitHubToken provides a mock function with given fields: githubToken
 func (m *MockCommandBuilder) AddGitHubToken(githubToken stepconf.Secret) CommandBuilder {
-	ret := m.Called(githubToken)
+	args := m.Called(githubToken)
+	return args.Get(0).(CommandBuilder)
+}
 
-	var r0 CommandBuilder
-	if rf, ok := ret.Get(0).(func(stepconf.Secret) CommandBuilder); ok {
-		r0 = rf(githubToken)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(CommandBuilder)
-		}
-	}
-
-	return r0
+// AddXCConfigFile provides a mock function with given fields: path
+func (m *MockCommandBuilder) AddXCConfigFile(path string) CommandBuilder {
+	args := m.Called(path)
+	return args.Get(0).(CommandBuilder)
 }
 
 // Append provides a mock function with given fields: args
 func (m *MockCommandBuilder) Append(args ...string) CommandBuilder {
-	_va := make([]interface{}, len(args))
-	for _i := range args {
-		_va[_i] = args[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, _va...)
-	ret := m.Called(_ca...)
-
-	var r0 CommandBuilder
-	if rf, ok := ret.Get(0).(func(...string) CommandBuilder); ok {
-		r0 = rf(args...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(CommandBuilder)
-		}
-	}
-
-	return r0
+	ret := m.Called(args)
+	return ret.Get(0).(CommandBuilder)
 }
 
 // Command provides a mock function with given fields:
 func (m *MockCommandBuilder) Command() *command.Model {
-	ret := m.Called()
-
-	var r0 *command.Model
-	if rf, ok := ret.Get(0).(func() *command.Model); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*command.Model)
-		}
-	}
-
-	return r0
+	args := m.Called()
+	return args.Get(0).(*command.Model)
 }
 
 func (m *MockCommandBuilder) GivenAddGitHubTokenSucceeds() *MockCommandBuilder {
 	m.On("AddGitHubToken", mock.Anything).Return(m)
+	return m
+}
+
+func (m *MockCommandBuilder) GivenAddXCConfigFileSucceeds() *MockCommandBuilder {
+	m.On("AddXCConfigFile", mock.Anything).Return(m)
 	return m
 }
 

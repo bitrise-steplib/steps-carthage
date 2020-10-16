@@ -3,13 +3,16 @@ package main
 // ConfigsModel ...
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 
 	cacheutil "github.com/bitrise-io/go-steputils/cache"
+	"github.com/bitrise-io/go-steputils/input"
 	"github.com/bitrise-io/go-steputils/stepconf"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-steplib/bitrise-step-export-universal-apk/filedownloader"
 	"github.com/bitrise-steplib/steps-carthage/cachedcarthage"
 	"github.com/bitrise-steplib/steps-carthage/carthage"
 	"github.com/hashicorp/go-version"
@@ -20,12 +23,19 @@ const (
 	projectDirArg = "--project-directory"
 )
 
+// FileProvider ...
+type FileProvider interface {
+	LocalPath(path string) (string, error)
+}
+
 // Config ...
 type Config struct {
 	GithubAccessToken stepconf.Secret `env:"github_access_token"`
 	CarthageCommand   string          `env:"carthage_command,required"`
 	CarthageOptions   string          `env:"carthage_options"`
 	SourceDir         string          `env:"BITRISE_SOURCE_DIR"`
+	Xcconfig          string          `env:"xcconfig"`
+	XcconfigFromEnv   string          `env:"XCODE_XCCONFIG_FILE"`
 
 	// Debug
 	VerboseLog bool `env:"verbose_log,opt[yes,no]"`
@@ -64,6 +74,11 @@ func main() {
 
 	// Parse options
 	args := parseCarthageOptions(configs)
+	fileProvider := input.NewFileProvider(filedownloader.New(http.DefaultClient))
+	xconfigPath, err := parseXCConfigPath(configs.Xcconfig, configs.XcconfigFromEnv, fileProvider)
+	if err != nil {
+		fail("Failed to get xcconfig file, error: %s", err)
+	}
 
 	projectDir := parseProjectDir(configs.SourceDir, args)
 	project := cachedcarthage.NewProject(projectDir)
@@ -74,12 +89,34 @@ func main() {
 		configs.CarthageCommand,
 		args,
 		configs.GithubAccessToken,
+		xconfigPath,
 		cachedcarthage.NewCache(project, swiftVersion, &filecache, stateProvider),
 		carthage.NewCLIBuilder(),
 	)
 	if err := runner.Run(); err != nil {
 		fail("Failed to execute step: %s", err)
 	}
+}
+
+func parseXCConfigPath(pathFromStepInput string, pathFromEnv string, fileProvider FileProvider) (string, error) {
+	pathToUse := ""
+	if pathFromStepInput != "" {
+		localPath, err := fileProvider.LocalPath(pathFromStepInput)
+		if err != nil {
+			return "", err
+		}
+		pathToUse = localPath
+	}
+
+	if pathFromEnv != "" {
+		if pathToUse != "" {
+			log.Warnf("Both `xcconfig` input and `XCODE_XCCONFIG_FILE` are set. Using `xcconfig` input.")
+		} else {
+			pathToUse = pathFromEnv
+		}
+	}
+
+	return pathToUse, nil
 }
 
 func parseCarthageOptions(config Config) []string {

@@ -9,51 +9,20 @@ type MockCarthageCache struct {
 
 // Collect provides a mock function with given fields:
 func (m *MockCarthageCache) Collect() error {
-	ret := m.Called()
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
+	args := m.Called()
+	return args.Error(0)
 }
 
 // Create provides a mock function with given fields:
 func (m *MockCarthageCache) Create() error {
-	ret := m.Called()
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
+	args := m.Called()
+	return args.Error(0)
 }
 
 // IsAvailable provides a mock function with given fields:
 func (m *MockCarthageCache) IsAvailable() (bool, error) {
-	ret := m.Called()
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func() bool); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	args := m.Called()
+	return args.Bool(0), args.Error(1)
 }
 
 func (m *MockCarthageCache) GivenIsAvailableFails(reason error) *MockCarthageCache {

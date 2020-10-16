@@ -9,23 +9,8 @@ type MockProjectStateProvider struct {
 
 // ParseState provides a mock function with given fields: project
 func (m *MockProjectStateProvider) ParseState(project Project) (ProjectState, error) {
-	ret := m.Called(project)
-
-	var r0 ProjectState
-	if rf, ok := ret.Get(0).(func(Project) ProjectState); ok {
-		r0 = rf(project)
-	} else {
-		r0 = ret.Get(0).(ProjectState)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(Project) error); ok {
-		r1 = rf(project)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	args := m.Called(project)
+	return args.Get(0).(ProjectState), args.Error(1)
 }
 
 func (m *MockProjectStateProvider) GivenParseStateFails(reason error) *MockProjectStateProvider {

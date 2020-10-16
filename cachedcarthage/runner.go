@@ -23,6 +23,7 @@ type CarthageCache interface {
 // CommandBuilder ...
 type CommandBuilder interface {
 	AddGitHubToken(githubToken stepconf.Secret) CommandBuilder
+	AddXCConfigFile(path string) CommandBuilder
 	Append(args ...string) CommandBuilder
 	Command() *command.Model
 }
@@ -32,6 +33,7 @@ type Runner struct {
 	command           string
 	args              []string
 	githubAccessToken stepconf.Secret
+	xcconfigPath      string
 	cache             CarthageCache
 	commandBuilder    CommandBuilder
 }
@@ -41,6 +43,7 @@ func NewRunner(
 	command string,
 	args []string,
 	githubAccessToken stepconf.Secret,
+	xcconfigPath string,
 	cache CarthageCache,
 	commandBuilder CommandBuilder,
 ) Runner {
@@ -48,6 +51,7 @@ func NewRunner(
 		command:           command,
 		args:              args,
 		githubAccessToken: githubAccessToken,
+		xcconfigPath:      xcconfigPath,
 		cache:             cache,
 		commandBuilder:    commandBuilder,
 	}
@@ -108,6 +112,8 @@ func (runner Runner) executeCommand() error {
 	// log.Printf("Appending GITHUB_ACCESS_TOKEN to process environments")
 	builder := runner.commandBuilder.
 		AddGitHubToken(runner.githubAccessToken).
+		AddXCConfigFile(runner.xcconfigPath).
+		Append(runner.command).
 		Append(runner.args...)
 	cmd := builder.Command()
 
