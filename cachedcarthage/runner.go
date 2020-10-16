@@ -109,7 +109,6 @@ func (runner Runner) isCacheAvailable() bool {
 func (runner Runner) executeCommand() error {
 	log.Infof("Running Carthage command")
 
-	// log.Printf("Appending GITHUB_ACCESS_TOKEN to process environments")
 	builder := runner.commandBuilder.
 		AddGitHubToken(runner.githubAccessToken).
 		AddXCConfigFile(runner.xcconfigPath).

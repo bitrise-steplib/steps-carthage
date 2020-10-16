@@ -3,51 +3,190 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
-  - STEP_VERSION: 3.1.4
-
-  - SAMPLE_APP_URL: https://github.com/bitrise-samples/sample-apps-carthage-objc.git
+    - STEP_VERSION: 3.1.4
+    - SAMPLE_APP_URL: https://github.com/bitrise-samples/sample-apps-carthage-objc.git
+    - ORIG_BITRISE_SOURCE_DIR: $BITRISE_SOURCE_DIR
 
 workflows:
   # ----------------------------------------------------------------
   # --- workflow to Step Test
   ci:
     before_run:
-    - audit-this-step
+      - audit-this-step
     steps:
-    - go-list:
-    - golint:
-    - errcheck:
-    after_run:
-    - test
+      - go-list:
+      - golint:
+      - errcheck:
+      - script:
+          title: Set XCODE11_12
+          inputs:
+            - content: |-
+                #!/bin/bash
+                $XCODE11_12=false
 
-  test:
+                if xcodebuild -version | grep -ocE '(11|12)\..*'; then
+                  $XCODE11_12=true
+                  echo "Xcode 11 or 12 found"
+                else
+                  echo "Xcode 11 or 12 NOT found"
+                fi
+                # envman add --key XCODE11_12 --value $isXCODE11_12
+    after_run:
+      - test-without-xcconfig
+      - test-xcconfig-from-env
+      - test-xcconfig-from-input
+      - test-xcconfig-from-input-url
+
+  test-without-xcconfig:
+    before_run:
+      - setup_clean_repo
+    after_run:
+      - teardown
     steps:
-    - go-list:
-    - go-test:
-    - script:
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -e
-            set -v
-            rm -rf ./_tmp
-    - change-workdir:
-        title: Switch working dir to test / _tmp dir
-        inputs:
-        - path: ./_tmp
-        - is_create_path: true
-    - script:
-        title: Clone sapmle app
-        inputs:
-        - content: git clone $SAMPLE_APP_URL .
-    - path::./:
-        inputs:
-        - carthage_options: --platform ios --project-directory $BITRISE_SOURCE_DIR
-    - script:
-        inputs: 
-        - content: |-
-            #!/bin/bash
-            echo $BITRISE_CACHE_INCLUDE_PATHS
+      - change-workdir:
+          title: Switch working dir to test / _tmp dir
+          inputs:
+            - path: $ORIG_BITRISE_SOURCE_DIR/_tmp
+            - is_create_path: true
+      - path::./:
+          run_if: |-
+            {{enveq "$XCODE11_12" "false"}}
+          inputs:
+            - carthage_options: --platform ios --project-directory $BITRISE_SOURCE_DIR
+      - script:
+          run_if: |-
+            {{enveq "$XCODE11_12" "false"}}
+          title: Check outputs
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -ex
+                if [ -z "$BITRISE_CACHE_INCLUDE_PATHS" ] ; then echo "BITRISE_CACHE_INCLUDE_PATHS env is empty" ; exit 1 ; fi ;
+
+  test-xcconfig-from-env:
+    before_run:
+      - setup_clean_repo
+      - apply_xcode_workaround
+    after_run:
+      - assert-outputs
+      - teardown
+    steps:
+      - change-workdir:
+          title: Switch working dir to test / _tmp dir
+          inputs:
+            - path: $ORIG_BITRISE_SOURCE_DIR/_tmp
+            - is_create_path: true
+      - script:
+          inputs:
+            - content: |-
+                #!/bin/bash
+                envman add --key XCODE_XCCONFIG_FILE --value "$TMP_XCODE_XCCONFIG_FILE"
+      - path::./:
+          inputs:
+            - carthage_options: --platform ios --project-directory $BITRISE_SOURCE_DIR
+
+  test-xcconfig-from-input:
+    before_run:
+      - setup_clean_repo
+      - apply_xcode_workaround
+    after_run:
+      - assert-outputs
+      - teardown
+    steps:
+      - change-workdir:
+          title: Switch working dir to test / _tmp dir
+          inputs:
+            - path: $ORIG_BITRISE_SOURCE_DIR/_tmp
+            - is_create_path: true
+      - path::./:
+          inputs:
+            - xcconfig: file://$TMP_XCODE_XCCONFIG_FILE
+            - carthage_options: --platform ios --project-directory $BITRISE_SOURCE_DIR
+
+  test-xcconfig-from-input-url:
+    before_run:
+      - setup_clean_repo
+      - apply_xcode_workaround
+    after_run:
+      - assert-outputs
+      - teardown
+    steps:
+      - change-workdir:
+          title: Switch working dir to test / _tmp dir
+          inputs:
+            - path: $ORIG_BITRISE_SOURCE_DIR/_tmp
+            - is_create_path: true
+      - path::./:
+          inputs:
+            - xcconfig: https://raw.githubusercontent.com/bitrise-io/sample-apps-carthage-objc/master/static.xcconfig
+            - carthage_options: --platform ios --project-directory $BITRISE_SOURCE_DIR
+
+  setup_clean_repo:
+    steps:
+      - change-workdir:
+          title: Switch working dir to ORIG_BITRISE_SOURCE_DIR
+          inputs:
+            - path: $ORIG_BITRISE_SOURCE_DIR
+      - script:
+          title: Clean _tmp folder
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -e
+                set -v
+                rm -rf $ORIG_BITRISE_SOURCE_DIR/_tmp
+      - script:
+          title: Clear BITRISE_CACHE_INCLUDE_PATHS env
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+                envman add --key BITRISE_CACHE_INCLUDE_PATHS --value ""
+      - script:
+          title: Clone sapmle app
+          inputs:
+            - content: git clone $SAMPLE_APP_URL $ORIG_BITRISE_SOURCE_DIR/_tmp
+
+  apply_xcode_workaround:
+    steps:
+      - script:
+          inputs:
+            - content: |-
+                #!/bin/bash
+                # source https://github.com/Carthage/Carthage/issues/3019#issuecomment-665136323
+                set -euo pipefail
+
+                xcconfig=$(mktemp /tmp/static.xcconfig.XXXXXX)
+
+                # For Xcode 12 make sure EXCLUDED_ARCHS is set to arm architectures otherwise
+                # the build will fail on lipo due to duplicate architectures.
+                echo 'EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_simulator__NATIVE_ARCH_64_BIT_x86_64__XCODE_1200 = arm64 arm64e armv7 armv7s armv6 armv8' >> $xcconfig
+                echo 'EXCLUDED_ARCHS = $(inherited) $(EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_$(EFFECTIVE_PLATFORM_SUFFIX)__NATIVE_ARCH_64_BIT_$(NATIVE_ARCH_64_BIT)__XCODE_$(XCODE_VERSION_MAJOR))' >> $xcconfig
+
+                envman add --key TMP_XCODE_XCCONFIG_FILE --value "$xcconfig"
+
+  assert-outputs:
+    steps:
+      - script:
+          title: Check outputs
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -ex
+                if [ -z "$BITRISE_CACHE_INCLUDE_PATHS" ] ; then echo "BITRISE_CACHE_INCLUDE_PATHS env is empty" ; exit 1 ; fi ;
+
+  teardown:
+    steps:
+      - script:
+          is_always_run: true
+          title: Clear TMP_XCODE_XCCONFIG_FILE
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -ex
+                rm -f $TMP_XCODE_XCCONFIG_FILE
+                envman add --key TMP_XCODE_XCCONFIG_FILE --value ""
+                envman add --key XCODE_XCCONFIG_FILE --value ""
 
   # ----------------------------------------------------------------
   # --- Utility workflows
@@ -56,43 +195,43 @@ workflows:
     description: |
       Used for updating bitrise dependencies with godep
     steps:
-    - script:
-        title: Dependency update
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
-            go get -u -v github.com/tools/godep
+      - script:
+          title: Dependency update
+          inputs:
+            - content: |
+                #!/bin/bash
+                set -ex
+                go get -u -v github.com/tools/godep
 
-            rm -rf ./Godeps
-            rm -rf ./vendor
+                rm -rf ./Godeps
+                rm -rf ./vendor
 
-            go get -t -d ./...
-            godep save ./...
+                go get -t -d ./...
+                godep save ./...
 
   # ----------------------------------------------------------------
   # --- workflows to create Release
   create-release:
     steps:
-    - script:
-        title:
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
-            export CI=true
-            releaseman create --version $STEP_VERSION
+      - script:
+          title:
+          inputs:
+            - content: |
+                #!/bin/bash
+                set -ex
+                export CI=true
+                releaseman create --version $STEP_VERSION
 
   # ----------------------------------------------------------------
   # --- workflow to Share this step into a Step Library
   audit-this-step:
     steps:
-    - script:
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            stepman audit --step-yml ./step.yml
+      - script:
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+                stepman audit --step-yml ./step.yml
 
   share-this-step:
     envs:
@@ -123,13 +262,13 @@ workflows:
       Once it finishes the only thing left is to actually create a Pull Request,
       the way described in the guide printed at the end of the process.
     before_run:
-    - audit-this-step
+      - audit-this-step
     steps:
-    - script:
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            bitrise share start -c ${MY_STEPLIB_REPO_FORK_GIT_URL}
-            bitrise share create --stepid ${STEP_ID_IN_STEPLIB} --tag ${STEP_GIT_VERION_TAG_TO_SHARE} --git ${STEP_GIT_CLONE_URL}
-            bitrise share finish
+      - script:
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+                bitrise share start -c ${MY_STEPLIB_REPO_FORK_GIT_URL}
+                bitrise share create --stepid ${STEP_ID_IN_STEPLIB} --tag ${STEP_GIT_VERION_TAG_TO_SHARE} --git ${STEP_GIT_CLONE_URL}
+                bitrise share finish
