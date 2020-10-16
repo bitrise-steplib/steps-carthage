@@ -3,15 +3,16 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a6c4b93cbf1598f39f75f8eb10aad73caf515d130c945da2fb9eb96743b23dc7"
+  digest = "1:58c6940c19902bbc005180a1a80ea89e24473ff90cf2977df6a5ba025924d7df"
   name = "github.com/bitrise-io/go-steputils"
   packages = [
     "cache",
+    "input",
     "stepconf",
     "tools",
   ]
   pruneopts = "UT"
-  revision = "6d5afa53c7b85b6135e382105116d245b5997ace"
+  revision = "03ae3a6ded35c5e8aed0058ec270e3494d242d17"
 
 [[projects]]
   branch = "master"
@@ -29,6 +30,14 @@
   ]
   pruneopts = "UT"
   revision = "0c47c16813a4209321c9d0dba2e75867d6901ff2"
+
+[[projects]]
+  digest = "1:dc5191789961721c888bde135057dc8ab3172489e5f7fe3e48956a248ac44f51"
+  name = "github.com/bitrise-steplib/bitrise-step-export-universal-apk"
+  packages = ["filedownloader"]
+  pruneopts = "UT"
+  revision = "a582681d23d651a5947f0c150c802872b289ad58"
+  version = "0.1.1"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -95,11 +104,13 @@
   analyzer-version = 1
   input-imports = [
     "github.com/bitrise-io/go-steputils/cache",
+    "github.com/bitrise-io/go-steputils/input",
     "github.com/bitrise-io/go-steputils/stepconf",
     "github.com/bitrise-io/go-utils/command",
     "github.com/bitrise-io/go-utils/fileutil",
     "github.com/bitrise-io/go-utils/log",
     "github.com/bitrise-io/go-utils/pathutil",
+    "github.com/bitrise-steplib/bitrise-step-export-universal-apk/filedownloader",
     "github.com/hashicorp/go-version",
     "github.com/kballard/go-shellquote",
     "github.com/stretchr/testify/assert",
