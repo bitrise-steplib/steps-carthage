@@ -2,7 +2,7 @@ package cachedcarthage
 
 import "os"
 
-// ProjectState represents a snapshot of a cached Carthage project
+// ProjectState represents a snapshot of a cached Carthage project.
 type ProjectState struct {
 	buildDirExists bool
 	buildDirFiles  []os.FileInfo

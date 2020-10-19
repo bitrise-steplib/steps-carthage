@@ -36,6 +36,7 @@ workflows:
       - test-xcconfig-from-env
       - test-xcconfig-from-input
       - test-xcconfig-from-input-url
+      - test-cache-xcconfig-from-env
 
   test-without-xcconfig:
     before_run:
