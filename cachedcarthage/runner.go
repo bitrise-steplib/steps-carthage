@@ -28,7 +28,7 @@ type CommandBuilder interface {
 	Command() *command.Model
 }
 
-// Runner ...
+// Runner can be used to execute Carthage command and cache the results.
 type Runner struct {
 	command           string
 	args              []string

@@ -86,10 +86,9 @@ inputs:
     opts:
       title: Custom xcconfig file to add to Carthage environment
       description: |-
-        Use this to point to a custom xcconfig file to workaround Xcode 12 issue
-        see [the Github issue](https://github.com/Carthage/Carthage/issues/3019) for more info
+        Could be sed to provide an xcconfig file as a workaround for Xcode 12 issue. See [the Github issue](https://github.com/Carthage/Carthage/issues/3019) for more information.
 
-        Can either be a local file provided with the `file://` scheme (like `file://path/to/file.xcconfig`) or an URL (like https://domain.com/file.xconfig)
+        Can either be a local file provided with the `file://` scheme (like `file://path/to/file.xcconfig`) or an URL (like https://domain.com/file.xconfig).
   - verbose_log: "no"
     opts:
       category: Debug

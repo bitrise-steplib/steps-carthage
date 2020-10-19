@@ -20,7 +20,7 @@ type ProjectStateProvider interface {
 	ParseState(project Project) (ProjectState, error)
 }
 
-// Cache ...
+// Cache can be used the cache Carthage command results.
 type Cache struct {
 	project       Project
 	swiftVersion  string
@@ -79,7 +79,7 @@ func (cache Cache) Collect() error {
 	return nil
 }
 
-// IsAvailable ...
+// IsAvailable returns if the Carthage project has cache available.
 func (cache Cache) IsAvailable() (bool, error) {
 
 	state, err := cache.stateProvider.ParseState(cache.project)

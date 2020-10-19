@@ -9,7 +9,7 @@ const (
 	cacheFileName    = "Cachefile"
 )
 
-// Project ...
+// Project represents a cached Carthage project.
 type Project struct {
 	projectDir string
 }

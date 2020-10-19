@@ -9,7 +9,7 @@ import (
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
-// DefaultStateProvider ...
+// DefaultStateProvider reads the current state of a cached Carthage project.
 type DefaultStateProvider struct {
 }
 
