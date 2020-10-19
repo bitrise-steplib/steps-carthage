@@ -17,6 +17,7 @@ workflows:
       - go-list:
       - golint:
       - errcheck:
+      - go-test:
       - script:
           title: Set XCODE11_12
           inputs:
