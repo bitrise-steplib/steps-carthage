@@ -30,7 +30,7 @@ type CommandBuilder interface {
 
 // Runner can be used to execute Carthage command and cache the results.
 type Runner struct {
-	command           string
+	carthageCommand   string
 	args              []string
 	githubAccessToken stepconf.Secret
 	xcconfigPath      string
@@ -40,7 +40,7 @@ type Runner struct {
 
 // NewRunner ...
 func NewRunner(
-	command string,
+	carthageCommand string,
 	args []string,
 	githubAccessToken stepconf.Secret,
 	xcconfigPath string,
@@ -48,7 +48,7 @@ func NewRunner(
 	commandBuilder CommandBuilder,
 ) Runner {
 	return Runner{
-		command:           command,
+		carthageCommand:   carthageCommand,
 		args:              args,
 		githubAccessToken: githubAccessToken,
 		xcconfigPath:      xcconfigPath,
@@ -60,7 +60,7 @@ func NewRunner(
 // Run ...
 func (runner Runner) Run() error {
 
-	if runner.command == bootstrapCommand {
+	if runner.carthageCommand == bootstrapCommand {
 		if runner.isCacheAvailable() {
 			log.Successf("Cache available")
 
@@ -73,7 +73,7 @@ func (runner Runner) Run() error {
 
 			log.Warnf("Cache collection skipped: %s", err)
 		} else {
-			log.Errorf("Cache not available")
+			log.Warnf("Cache not available")
 		}
 	}
 
@@ -81,7 +81,7 @@ func (runner Runner) Run() error {
 		return fmt.Errorf("Carthage command failed, error: %s", err)
 	}
 
-	if runner.command == bootstrapCommand {
+	if runner.carthageCommand == bootstrapCommand {
 		log.Infof("Creating cache")
 		if err := runner.cache.Create(); err != nil {
 			return err
@@ -112,7 +112,7 @@ func (runner Runner) executeCommand() error {
 	builder := runner.commandBuilder.
 		AddGitHubToken(runner.githubAccessToken).
 		AddXCConfigFile(runner.xcconfigPath).
-		Append(runner.command).
+		Append(runner.carthageCommand).
 		Append(runner.args...)
 	cmd := builder.Command()
 

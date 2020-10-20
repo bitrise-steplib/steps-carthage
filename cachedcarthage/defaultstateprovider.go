@@ -15,7 +15,7 @@ type DefaultStateProvider struct {
 
 // ParseState ...
 func (provider DefaultStateProvider) ParseState(project Project) (ProjectState, error) {
-	buildDirExists, buildDirFiles := provider.parseBuildDirecrtoyState(project.buildDir())
+	buildDirNotEmpty, buildDirFiles := provider.parseBuildDirectoryState(project.buildDir())
 	cacheFileExists, cacheFileContent, err := provider.parseCacheFileState(project.cacheFilePath())
 	if err != nil {
 		return ProjectState{}, err
@@ -31,8 +31,7 @@ func (provider DefaultStateProvider) ParseState(project Project) (ProjectState, 
 	}
 
 	return ProjectState{
-		buildDirExists: buildDirExists,
-		buildDirFiles:  buildDirFiles,
+		buildDirNotEmpty: buildDirNotEmpty && len(buildDirFiles) != 0,
 
 		cacheFileExists:  cacheFileExists,
 		cacheFileContent: cacheFileContent,
@@ -44,7 +43,7 @@ func (provider DefaultStateProvider) ParseState(project Project) (ProjectState, 
 	}, nil
 }
 
-func (provider DefaultStateProvider) parseBuildDirecrtoyState(buildDir string) (bool, []os.FileInfo) {
+func (provider DefaultStateProvider) parseBuildDirectoryState(buildDir string) (bool, []os.FileInfo) {
 	files, err := ioutil.ReadDir(buildDir)
 	if err != nil {
 		return false, nil

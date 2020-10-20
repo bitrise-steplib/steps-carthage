@@ -42,7 +42,7 @@ func (builder CLIBuilder) Append(args ...string) cachedcarthage.CommandBuilder {
 	return builder
 }
 
-// Command returns the builded command.
+// Command returns the built command.
 func (builder CLIBuilder) Command() *command.Model {
 	return builder.cmd
 }

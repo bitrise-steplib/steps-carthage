@@ -51,7 +51,7 @@ func (cache Cache) Create() error {
 		}
 	}
 
-	cacheContent := cache.cacheFileContent(state.resolvedFileContent)
+	cacheContent := cache.createContentOfCacheFile(state.resolvedFileContent)
 	if err := fileutil.WriteStringToFile(cache.project.cacheFilePath(), cacheContent); err != nil {
 		return fmt.Errorf("Failed to write cahe file, error: %s", err)
 	}
@@ -93,7 +93,7 @@ func (cache Cache) IsAvailable() (bool, error) {
 		return false, nil
 	}
 
-	expectedCacheFileContent := cache.cacheFileContent(state.resolvedFileContent)
+	expectedCacheFileContent := cache.createContentOfCacheFile(state.resolvedFileContent)
 	if state.cacheFileContent != expectedCacheFileContent {
 		log.Debugf(
 			"Cachefile is not valid.\n" +
@@ -125,7 +125,7 @@ func (cache Cache) logProjectStateWarnings(state ProjectState) {
 	}
 }
 
-func (cache Cache) cacheFileContent(resolvedFileContent string) string {
+func (cache Cache) createContentOfCacheFile(resolvedFileContent string) string {
 	return fmt.Sprintf("--Swift version: %s --Swift version \n --%s: %s --%s",
 		cache.swiftVersion,
 		resolvedFileName,

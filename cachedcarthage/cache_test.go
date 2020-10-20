@@ -86,7 +86,7 @@ func Test_WhenCacheFileContentCalled_ThenExpectCorrectValue(t *testing.T) {
 	}
 
 	// When
-	actualContent := cache.cacheFileContent(content)
+	actualContent := cache.createContentOfCacheFile(content)
 
 	// Then
 	assert.Equal(t, expectedContent, actualContent)
@@ -186,7 +186,7 @@ func Test_GivenStateIsNotIntact_WhenIsAvailableCalled_ThenExpectFalse(t *testing
 func Test_GivenStateIsIntactButCacheFileIsCorrupt_WhenIsAvailableCalled_ThenExpectTrue(t *testing.T) {
 	// Given
 	state := ProjectState{
-		buildDirExists:     true,
+		buildDirNotEmpty:   true,
 		cacheFileExists:    true,
 		cacheFileContent:   "corrupt",
 		resolvedFileExists: true,
@@ -222,7 +222,7 @@ func Test_GivenStateIsIntactAndCacheFileIsCorrect_WhenIsAvailableCalled_ThenExpe
 		resolvedFileName)
 
 	state := ProjectState{
-		buildDirExists:      true,
+		buildDirNotEmpty:    true,
 		cacheFileExists:     true,
 		cacheFileContent:    expectedContent,
 		resolvedFileExists:  true,

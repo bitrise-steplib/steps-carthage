@@ -1,11 +1,8 @@
 package cachedcarthage
 
-import "os"
-
 // ProjectState represents a snapshot of a cached Carthage project.
 type ProjectState struct {
-	buildDirExists bool
-	buildDirFiles  []os.FileInfo
+	buildDirNotEmpty bool
 
 	cacheFileExists  bool
 	cacheFileContent string
@@ -17,5 +14,7 @@ type ProjectState struct {
 }
 
 func (state ProjectState) isCacheIntact() bool {
-	return state.buildDirExists && state.cacheFileExists && state.resolvedFileExists
+	return state.buildDirNotEmpty &&
+		state.cacheFileExists &&
+		state.resolvedFileExists
 }

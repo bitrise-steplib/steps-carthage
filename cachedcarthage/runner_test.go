@@ -10,14 +10,14 @@ import (
 )
 
 // Run
-func Test_GivenNotBootstratpedCommand_WhenRunCalled_ThenExpectNoErrorAndCacheNotCreated(t *testing.T) {
+func Test_GivenNotBootstrapCommand_WhenRunCalled_ThenExpectNoErrorAndCacheNotCreated(t *testing.T) {
 	// Given
 	mockCarthageCache := givenMockCarthageCache()
-	mockCommandBuilder := givenStubedCommandBuilder()
+	mockCommandBuilder := givenStubbedCommandBuilder()
 	runner := Runner{
-		command:        "version",
-		cache:          mockCarthageCache,
-		commandBuilder: mockCommandBuilder,
+		carthageCommand: "version",
+		cache:           mockCarthageCache,
+		commandBuilder:  mockCommandBuilder,
 	}
 
 	// When
@@ -30,16 +30,16 @@ func Test_GivenNotBootstratpedCommand_WhenRunCalled_ThenExpectNoErrorAndCacheNot
 	mockCarthageCache.AssertNotCalled(t, "Create")
 }
 
-func Test_GivenBootstratpedCommandAndCacheNotAvailableAndCacheCreateFails_WhenRunCalled_ThenExpectError(t *testing.T) {
+func Test_GivenBootstrapCommandAndCacheNotAvailableAndCacheCreateFails_WhenRunCalled_ThenExpectError(t *testing.T) {
 	// Given
 	expectedError := errors.New("sad error")
 	mockCarthageCache := givenMockCarthageCache().
 		GivenIsAvailableSucceeds(false).
 		GivenCreateFails(expectedError)
 	runner := Runner{
-		command:        "bootstrap",
-		cache:          mockCarthageCache,
-		commandBuilder: givenStubedCommandBuilder(),
+		carthageCommand: "bootstrap",
+		cache:           mockCarthageCache,
+		commandBuilder:  givenStubbedCommandBuilder(),
 	}
 
 	// When
@@ -49,38 +49,16 @@ func Test_GivenBootstratpedCommandAndCacheNotAvailableAndCacheCreateFails_WhenRu
 	assert.EqualError(t, expectedError, error.Error())
 }
 
-func Test_GivenBootstratpedCommandAndCacheNotAvailableAndCacheCreateSucceeds_WhenRunCalled_ThenExpectNoError(t *testing.T) {
+func Test_GivenBootstrapCommandAndCacheNotAvailableAndCacheCreateSucceeds_WhenRunCalled_ThenExpectNoError(t *testing.T) {
 	// Given
 	mockCarthageCache := givenMockCarthageCache().
 		GivenIsAvailableSucceeds(false).
 		GivenCreateSucceeds().
 		GivenCollectSucceeds()
 	runner := Runner{
-		command:        "bootstrap",
-		cache:          mockCarthageCache,
-		commandBuilder: givenStubedCommandBuilder(),
-	}
-
-	// When
-	error := runner.Run()
-
-	// Then
-	assert.NoError(t, error)
-}
-
-func Test_GivenBootstratpedCommandAndCacheAvailableAndCollectFails_WhenRunCalled_ThenExpectCommandExecutedCacheCreated(t *testing.T) {
-	// Given
-	mockCarthageCache := givenMockCarthageCache().
-		GivenIsAvailableSucceeds(true).
-		GivenCollectFails(errors.New("sad error")).
-		GivenCreateSucceeds()
-
-	mockCommandBuilder := givenStubedCommandBuilder()
-
-	runner := Runner{
-		command:        "bootstrap",
-		cache:          mockCarthageCache,
-		commandBuilder: mockCommandBuilder,
+		carthageCommand: "bootstrap",
+		cache:           mockCarthageCache,
+		commandBuilder:  givenStubbedCommandBuilder(),
 	}
 
 	// When
@@ -92,17 +70,41 @@ func Test_GivenBootstratpedCommandAndCacheAvailableAndCollectFails_WhenRunCalled
 	mockCarthageCache.AssertCalled(t, "Collect")
 }
 
-func Test_GivenBootstratpedCommandAndCacheAvailableAndCollectSucceeds_WhenRunCalled_ThenExpectCommandNotExecutedAndCacheCreated(t *testing.T) {
+func Test_GivenBootstrapCommandAndCacheAvailableAndCollectFails_WhenRunCalled_ThenExpectCommandExecutedCacheCreated(t *testing.T) {
+	// Given
+	mockCarthageCache := givenMockCarthageCache().
+		GivenIsAvailableSucceeds(true).
+		GivenCollectFails(errors.New("sad error")).
+		GivenCreateSucceeds()
+
+	mockCommandBuilder := givenStubbedCommandBuilder()
+
+	runner := Runner{
+		carthageCommand: "bootstrap",
+		cache:           mockCarthageCache,
+		commandBuilder:  mockCommandBuilder,
+	}
+
+	// When
+	error := runner.Run()
+
+	// Then
+	assert.NoError(t, error)
+	mockCarthageCache.AssertCalled(t, "Create")
+	mockCarthageCache.AssertCalled(t, "Collect")
+}
+
+func Test_GivenBootstrapCommandAndCacheAvailableAndCollectSucceeds_WhenRunCalled_ThenExpectCommandNotExecutedAndCacheCreated(t *testing.T) {
 	// Given
 	mockCarthageCache := givenMockCarthageCache().
 		GivenIsAvailableSucceeds(true).
 		GivenCollectSucceeds()
 
-	mockCommandBuilder := givenStubedCommandBuilderReturnFailingCommand()
+	mockCommandBuilder := givenStubbedCommandBuilderReturnFailingCommand()
 	runner := Runner{
-		command:        "bootstrap",
-		cache:          mockCarthageCache,
-		commandBuilder: mockCommandBuilder,
+		carthageCommand: "bootstrap",
+		cache:           mockCarthageCache,
+		commandBuilder:  mockCommandBuilder,
 	}
 
 	// When
@@ -151,13 +153,13 @@ func Test_GivenCarthageCacheAvailableSucceeds_WhenIsCacheAvailableCalled_ThenExp
 // ecxecuteCommand
 func Test_GivenCommadSucceeds_WhenExecuteCommandCalled_ThenExpectNoError(t *testing.T) {
 	// Given
-	mockCommandBuilder := givenStubedCommandBuilder()
+	mockCommandBuilder := givenStubbedCommandBuilder()
 	command := "version"
 	args := []string{"arg1"}
 	runner := Runner{
-		command:        command,
-		args:           args,
-		commandBuilder: mockCommandBuilder,
+		carthageCommand: command,
+		args:            args,
+		commandBuilder:  mockCommandBuilder,
 	}
 
 	// When
@@ -176,7 +178,7 @@ func givenMockCarthageCache() *MockCarthageCache {
 	return new(MockCarthageCache)
 }
 
-func givenStubedCommandBuilder() *MockCommandBuilder {
+func givenStubbedCommandBuilder() *MockCommandBuilder {
 	command := command.New("echo", "hello")
 	mockCommandBuilder := new(MockCommandBuilder).
 		GivenAddGitHubTokenSucceeds().
@@ -186,7 +188,7 @@ func givenStubedCommandBuilder() *MockCommandBuilder {
 	return mockCommandBuilder
 }
 
-func givenStubedCommandBuilderReturnFailingCommand() *MockCommandBuilder {
+func givenStubbedCommandBuilderReturnFailingCommand() *MockCommandBuilder {
 	command := command.New("fail")
 	mockCommandBuilder := new(MockCommandBuilder).
 		GivenAddGitHubTokenSucceeds().
