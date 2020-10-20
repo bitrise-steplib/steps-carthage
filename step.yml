@@ -3,7 +3,7 @@ summary: |-
   Runs the selected Carthage command.
 description: |-
   Downloads and builds the dependencies your Cocoa application needs.
-  
+
   ### Configuring the Step
   1. Add the **Carthage** Step in your Workflow.
   2. Select `bootstrap` Carthage command in the **Carthage command to run** input. Make sure you have the **Bitrise.io Cache:Pull** Step before and the **Bitrise.io Cache:Push** Step after the **Carthage** Step in your Workflow to cache files and speed up your Bitrise build.
@@ -41,11 +41,11 @@ is_always_run: false
 is_skippable: false
 deps:
   brew:
-  - name: go
-  - name: carthage
+    - name: go
+    - name: carthage
   apt_get:
-  - name: golang
-    bin_name: go
+    - name: golang
+      bin_name: go
 toolkit:
   go:
     package_name: github.com/bitrise-steplib/steps-carthage
@@ -82,6 +82,13 @@ inputs:
 
         __UNCHECK EVERY SCOPE BOX__ when creating this token. There is no reason this token needs access to private information.
       is_sensitive: true
+  - xcconfig:
+    opts:
+      title: Custom xcconfig file to add to Carthage environment
+      description: |-
+        Use this input to provide an `xcconfig` file as a workaround for the Xcode 12 issue. For more information, see [the Github issue](https://github.com/Carthage/Carthage/issues/3019).
+
+        Can either be a local file provided with the `file://` scheme (like `file://path/to/file.xcconfig`) or an URL (like https://domain.com/file.xconfig).
   - verbose_log: "no"
     opts:
       category: Debug
@@ -89,5 +96,5 @@ inputs:
       description: Enable verbose logging?
       is_required: true
       value_options:
-      - "yes"
-      - "no"
+        - "yes"
+        - "no"

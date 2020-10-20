@@ -3,29 +3,30 @@ package main
 // ConfigsModel ...
 import (
 	"fmt"
-	"io/ioutil"
+	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 
-	"github.com/bitrise-io/go-steputils/cache"
+	cacheutil "github.com/bitrise-io/go-steputils/cache"
+	"github.com/bitrise-io/go-steputils/input"
 	"github.com/bitrise-io/go-steputils/stepconf"
 	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
-	"github.com/bitrise-io/go-utils/pathutil"
-	version "github.com/hashicorp/go-version"
+	"github.com/bitrise-steplib/bitrise-step-export-universal-apk/filedownloader"
+	"github.com/bitrise-steplib/steps-carthage/cachedcarthage"
+	"github.com/bitrise-steplib/steps-carthage/carthage"
+	"github.com/hashicorp/go-version"
 	"github.com/kballard/go-shellquote"
 )
 
 const (
-	carthageDirName  = "Carthage"
-	buildDirName     = "Build"
-	cacheFileName    = "Cachefile"
-	resolvedFileName = "Cartfile.resolved"
-
-	bootstrapCommand = "bootstrap"
+	projectDirArg = "--project-directory"
 )
+
+// FileProvider ...
+type FileProvider interface {
+	LocalPath(path string) (string, error)
+}
 
 // Config ...
 type Config struct {
@@ -33,6 +34,8 @@ type Config struct {
 	CarthageCommand   string          `env:"carthage_command,required"`
 	CarthageOptions   string          `env:"carthage_options"`
 	SourceDir         string          `env:"BITRISE_SOURCE_DIR"`
+	Xcconfig          string          `env:"xcconfig"`
+	XcconfigFromEnv   string          `env:"XCODE_XCCONFIG_FILE"`
 
 	// Debug
 	VerboseLog bool `env:"verbose_log,opt[yes,no]"`
@@ -41,169 +44,6 @@ type Config struct {
 func fail(format string, v ...interface{}) {
 	log.Errorf(format, v...)
 	os.Exit(1)
-}
-
-func getSwiftVersion() (string, error) {
-	cmd := command.New("swift", "-version")
-	return cmd.RunAndReturnTrimmedCombinedOutput()
-}
-
-func getCarthageVersion() (*version.Version, error) {
-	cmd := command.New("carthage", "version")
-	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-	if err != nil {
-		return nil, err
-	}
-
-	// if output is multi-line, get the last line of string
-	// parse Version from cmd output
-	for _, outLine := range strings.Split(out, "\n") {
-		if currentVersion, err := version.NewVersion(outLine); err == nil {
-			return currentVersion, nil
-		}
-	}
-
-	return nil, fmt.Errorf("failed to parse `$ carthage version` output: %s", out)
-}
-
-func contentOfFile(pth string) (string, error) {
-	if exist, err := pathutil.IsPathExists(pth); err != nil {
-		return "", err
-	} else if !exist {
-		return "", fmt.Errorf("file not exists: %s", pth)
-	}
-
-	return fileutil.ReadStringFromFile(pth)
-}
-
-func isCacheAvailable(srcDir string, swiftVersion string) (bool, error) {
-	log.Printf("Check cache specific files")
-	buildDirAvailable, cacheFileAvailable, resolvedFileAvailable := true, true, true
-
-	// check for built dependencies (Carthage/Build/*)
-	fmt.Print("- Carthage/Build directory: ")
-	carthageDir := filepath.Join(srcDir, carthageDirName)
-	carthageBuildDir := filepath.Join(carthageDir, buildDirName)
-
-	files, err := ioutil.ReadDir(carthageBuildDir)
-	if err != nil {
-		buildDirAvailable = false
-		log.Errorf("not found")
-	} else if len(files) == 0 {
-		buildDirAvailable = false
-		log.Errorf("empty")
-	} else {
-		log.Successf("found")
-	}
-
-	// ---
-
-	// read cache indicator file (Carthage/Cachefile)
-	fmt.Print("- Cachefile: ")
-	var cacheFileContent string
-
-	cacheFilePth := filepath.Join(carthageDir, cacheFileName)
-	if exist, err := pathutil.IsPathExists(cacheFilePth); err != nil {
-		return false, err
-	} else if !exist {
-		cacheFileAvailable = false
-		log.Errorf("not available yet")
-	} else {
-		log.Successf("found")
-		log.Debugf(cacheFileName + " exists in " + cacheFilePth + "\n")
-
-		cacheFileContent, err = contentOfFile(cacheFilePth)
-		if err != nil {
-			return false, err
-		} else if cacheFileContent == "" {
-			log.Errorf("Cachefile is empty")
-		} else {
-			log.Debugf(cacheFileName + " content: " + cacheFileContent + "\n")
-		}
-	}
-
-	// --
-
-	// read Cartfile.resolved
-	fmt.Print("- Cartfile.resolved: ")
-	var resolvedFileContent string
-
-	resolvedFilePath := filepath.Join(srcDir, resolvedFileName)
-	if exist, err := pathutil.IsPathExists(resolvedFilePath); err != nil {
-		return false, err
-	} else if !exist {
-		log.Errorf("not found")
-		resolvedFileAvailable = false
-	} else {
-		log.Successf("found")
-
-		resolvedFileContent, err = contentOfFile(resolvedFilePath)
-		if err != nil {
-			return false, err
-
-		} else if resolvedFileContent == "" {
-			return false, fmt.Errorf("Catfile.resolved is empty")
-		}
-		log.Debugf(resolvedFileName + " content: " + resolvedFileContent + "\n")
-	}
-
-	// ---
-
-	// Warn messages about the missing files
-
-	// Print the warning about the missing Cachefile only if the other required file (Cartfile.resolved) is available.
-	// If the Cartfile.resolved is not found, then we don't want to mislead the user with this warning.
-	if !cacheFileAvailable && resolvedFileAvailable {
-		fmt.Println()
-		log.Warnf("The " + cacheFileName + " is generated by the step. Probably cache not initialised yet (first cache push initialises the cache), nothing to worry about ;)")
-
-	}
-
-	if !resolvedFileAvailable {
-		fmt.Println()
-		log.Warnf("No "+resolvedFileName+" found at: %s", resolvedFilePath)
-		log.Warnf("Make sure it's committed into your repository!")
-		log.Warnf(resolvedFileName + " presence ensures that Bitrise will use exactly the same versions of dependencies as you in your local environment. ")
-		log.Warnf("The dependencies will not be cached until the " + resolvedFileName + " file presents in the repository.")
-	}
-
-	if buildDirAvailable && cacheFileAvailable && resolvedFileAvailable {
-		desiredCacheContent := fmt.Sprintf("--Swift version: %s --Swift version \n --%s: %s --%s", swiftVersion, resolvedFileName, resolvedFileContent, resolvedFileName)
-		if cacheFileContent != desiredCacheContent {
-			log.Debugf(
-				"Cachefile is not valid.\n" +
-					"Desired cache content:\n" +
-					desiredCacheContent +
-					"CacheFile content:\n" +
-					cacheFileContent,
-			)
-
-			return false, nil
-		}
-	}
-
-	return (buildDirAvailable && cacheFileAvailable && resolvedFileAvailable), nil
-}
-
-func collectCarthageCache(projectDir string) error {
-	fmt.Println()
-	log.Infof("Collecting carthage caches...")
-
-	absCarthageDir, err := filepath.Abs(filepath.Join(projectDir, carthageDirName))
-	if err != nil {
-		return fmt.Errorf("failed to determine cache paths")
-	}
-	absCacheFilePth, err := filepath.Abs(filepath.Join(projectDir, carthageDirName, cacheFileName))
-	if err != nil {
-		return fmt.Errorf("failed to determine cache paths")
-	}
-	carthageCache := cache.New()
-	carthageCache.IncludePath(fmt.Sprintf("%s -> %s", absCarthageDir, absCacheFilePth))
-	if err := carthageCache.Commit(); err != nil {
-		return fmt.Errorf("failed to commit cache paths")
-	}
-
-	return nil
 }
 
 func main() {
@@ -233,20 +73,93 @@ func main() {
 	// --
 
 	// Parse options
-	customOptions := []string{}
-	if configs.CarthageOptions != "" {
-		options, err := shellquote.Split(configs.CarthageOptions)
-		if err != nil {
-			fail("Failed to shell split CarthageOptions (%s), error: %s", configs.CarthageOptions)
-		}
-		customOptions = options
+	args := parseCarthageOptions(configs)
+	fileProvider := input.NewFileProvider(filedownloader.New(http.DefaultClient))
+	xconfigPath, err := parseXCConfigPath(configs.Xcconfig, configs.XcconfigFromEnv, fileProvider)
+	if err != nil {
+		fail("Failed to get xcconfig file, error: %s", err)
 	}
 
-	projectDir := configs.SourceDir
+	projectDir := parseProjectDir(configs.SourceDir, args)
+	project := cachedcarthage.NewProject(projectDir)
+	filecache := cacheutil.New()
+	stateProvider := cachedcarthage.DefaultStateProvider{}
+
+	runner := cachedcarthage.NewRunner(
+		configs.CarthageCommand,
+		args,
+		configs.GithubAccessToken,
+		xconfigPath,
+		cachedcarthage.NewCache(project, swiftVersion, &filecache, stateProvider),
+		carthage.NewCLIBuilder(),
+	)
+	if err := runner.Run(); err != nil {
+		fail("Failed to execute step: %s", err)
+	}
+}
+
+func parseXCConfigPath(pathFromStepInput string, pathFromEnv string, fileProvider FileProvider) (string, error) {
+	pathToUse := ""
+	if pathFromStepInput != "" {
+		localPath, err := fileProvider.LocalPath(pathFromStepInput)
+		if err != nil {
+			return "", err
+		}
+		pathToUse = localPath
+	}
+
+	if pathFromEnv != "" {
+		if pathToUse != "" {
+			log.Warnf("Both `xcconfig` input and `XCODE_XCCONFIG_FILE` are set. Using `xcconfig` input.")
+		} else {
+			pathToUse = pathFromEnv
+		}
+	}
+
+	return pathToUse, nil
+}
+
+func parseCarthageOptions(config Config) []string {
+	var customCarthageOptions []string
+	if config.CarthageOptions != "" {
+		options, err := shellquote.Split(config.CarthageOptions)
+		if err != nil {
+			fail("Failed to shell split CarthageOptions (%s), error: %s", config.CarthageOptions)
+		}
+		customCarthageOptions = options
+	}
+	return customCarthageOptions
+}
+
+func getCarthageVersion() (*version.Version, error) {
+	cmd := carthage.NewCLIBuilder().Append("version").Command()
+	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+
+	// if output is multi-line, get the last line of string
+	// parse Version from cmd output
+	for _, outLine := range strings.Split(out, "\n") {
+		if currentVersion, err := version.NewVersion(outLine); err == nil {
+			return currentVersion, nil
+		}
+	}
+
+	return nil, fmt.Errorf("failed to parse `$ carthage version` output: %s", out)
+}
+
+func getSwiftVersion() (string, error) {
+	cmd := command.New("swift", "-version")
+	return cmd.RunAndReturnTrimmedCombinedOutput()
+}
+
+func parseProjectDir(originalDir string, customCarthageOptions []string) string {
+	projectDir := originalDir
 
 	isNextOptionProjectDir := false
-	for _, option := range customOptions {
-		if option == "--project-directory" {
+	for _, option := range customCarthageOptions {
+		if option == projectDirArg {
 			isNextOptionProjectDir = true
 			continue
 		}
@@ -261,96 +174,6 @@ func main() {
 			break
 		}
 	}
-	// ---
 
-	// Exit if bootstrap is cached
-	if configs.CarthageCommand == bootstrapCommand {
-		fmt.Println()
-		log.Infof("Check if cache is available")
-
-		cacheAvailable, err := isCacheAvailable(projectDir, swiftVersion)
-		if err != nil {
-			log.Warnf("Failed to check if cached is available, error: %s", err)
-		}
-
-		if cacheAvailable {
-			log.Successf("Cache available")
-		} else {
-			log.Errorf("Cache not available")
-		}
-
-		if cacheAvailable {
-			if err := collectCarthageCache(projectDir); err != nil {
-				log.Warnf("Cache collection skipped: %s", err)
-			}
-			log.Donef("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as CarthageCommand and re-run your build.")
-			os.Exit(0)
-		}
-	}
-	// ---
-
-	// Run carthage command
-	fmt.Println()
-	log.Infof("Running Carthage command")
-
-	args := append([]string{configs.CarthageCommand}, customOptions...)
-	cmd := command.New("carthage", args...)
-
-	if configs.GithubAccessToken != "" {
-		log.Printf("Appending GITHUB_ACCESS_TOKEN to process environments")
-
-		cmd.AppendEnvs(fmt.Sprintf("GITHUB_ACCESS_TOKEN=%s", string(configs.GithubAccessToken)))
-	}
-
-	cmd.SetStdout(os.Stdout)
-	cmd.SetStderr(os.Stderr)
-
-	log.Donef("$ %s", cmd.PrintableCommandArgs())
-	fmt.Println()
-
-	if err := cmd.Run(); err != nil {
-		fail("Carthage command failed, error: %s", err)
-	}
-	// ---
-
-	// Create cache
-	if configs.CarthageCommand == bootstrapCommand {
-		fmt.Println()
-		log.Infof("Creating cache")
-
-		cacheFilePth := filepath.Join(projectDir, carthageDirName, cacheFileName)
-
-		resolvedFilePath := filepath.Join(projectDir, resolvedFileName)
-		resolvedFileContent, err := contentOfFile(resolvedFilePath)
-		if err != nil {
-			fail("Failed to read Cartfile.resolved, error: %s", err)
-		}
-		if resolvedFileContent == "" {
-			log.Warnf("Cartfile.resolved is empty or not exists at: %s", resolvedFilePath)
-			log.Warnf("Skipping caching")
-			os.Exit(1)
-		}
-
-		cacheContent := fmt.Sprintf("--Swift version: %s --Swift version \n --%s: %s --%s", swiftVersion, resolvedFileName, resolvedFileContent, resolvedFileName)
-
-		carthageDir := filepath.Join(projectDir, carthageDirName)
-		if exist, err := pathutil.IsPathExists(carthageDir); err != nil {
-			fail("Failed to check if dir exists at (%s), error: %s", carthageDir, err)
-		} else if !exist {
-			if err := os.Mkdir(carthageDir, 0777); err != nil {
-				fail("Failed to create dir (%s), error: %s", carthageDir, err)
-			}
-		}
-
-		if err := fileutil.WriteStringToFile(cacheFilePth, cacheContent); err != nil {
-			fail("Failed to write cahe file, error: %s", err)
-		}
-
-		log.Donef("Cachefile created: %s", cacheFilePth)
-
-		if err := collectCarthageCache(projectDir); err != nil {
-			log.Warnf("Cache collection skipped: %s", err)
-		}
-	}
-	// ---
+	return projectDir
 }
