@@ -138,6 +138,7 @@ func Test_GivenFileCacheCommitSucceeds_WhenCommitCalled_ThenExpectIncludePathCal
 	// Then
 	assert.NoError(t, actualError)
 	mockFileCache.AssertCalled(t, "IncludePath", expectedCacheCall)
+	mockFileCache.AssertCalled(t, "Commit")
 }
 
 // IsAvailable

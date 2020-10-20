@@ -15,7 +15,7 @@ type DefaultStateProvider struct {
 
 // ParseState ...
 func (provider DefaultStateProvider) ParseState(project Project) (ProjectState, error) {
-	buildDirNotEmpty, buildDirFiles := provider.parseBuildDirectoryState(project.buildDir())
+	buildDirExists, buildDirFiles := provider.parseBuildDirectoryState(project.buildDir())
 	cacheFileExists, cacheFileContent, err := provider.parseCacheFileState(project.cacheFilePath())
 	if err != nil {
 		return ProjectState{}, err
@@ -31,7 +31,7 @@ func (provider DefaultStateProvider) ParseState(project Project) (ProjectState, 
 	}
 
 	return ProjectState{
-		buildDirNotEmpty: buildDirNotEmpty && len(buildDirFiles) != 0,
+		buildDirNotEmpty: buildDirExists && len(buildDirFiles) != 0,
 
 		cacheFileExists:  cacheFileExists,
 		cacheFileContent: cacheFileContent,

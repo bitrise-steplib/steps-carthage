@@ -70,7 +70,7 @@ workflows:
   test-xcconfig-from-env:
     before_run:
       - setup_clean_repo
-      - apply_xcode_workaround
+      - create-local-workaround-xcconfig-file
     after_run:
       - assert-outputs
       - teardown
@@ -92,7 +92,7 @@ workflows:
   test-cache-xcconfig-from-env:
     before_run:
       - setup_clean_repo
-      - apply_xcode_workaround
+      - create-local-workaround-xcconfig-file
     after_run:
       - assert-outputs
       - teardown
@@ -117,7 +117,7 @@ workflows:
   test-xcconfig-from-input:
     before_run:
       - setup_clean_repo
-      - apply_xcode_workaround
+      - create-local-workaround-xcconfig-file
     after_run:
       - assert-outputs
       - teardown
@@ -135,7 +135,6 @@ workflows:
   test-xcconfig-from-input-url:
     before_run:
       - setup_clean_repo
-      - apply_xcode_workaround
     after_run:
       - assert-outputs
       - teardown
@@ -176,7 +175,7 @@ workflows:
           inputs:
             - content: git clone $SAMPLE_APP_URL $ORIG_BITRISE_SOURCE_DIR/_tmp
 
-  apply_xcode_workaround:
+  create-local-workaround-xcconfig-file:
     steps:
       - script:
           inputs:
