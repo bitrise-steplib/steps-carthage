@@ -15,8 +15,8 @@ const (
 
 // CarthageCache ...
 type CarthageCache interface {
-	Collect() error
-	Create() error
+	Commit() error
+	CreateIndicator() error
 	IsAvailable() (bool, error)
 }
 
@@ -64,8 +64,8 @@ func (runner Runner) Run() error {
 		if runner.isCacheAvailable() {
 			log.Successf("Cache available")
 
-			log.Infof("Collecting carthage caches...")
-			err := runner.cache.Collect()
+			log.Infof("Committing Cachefile...")
+			err := runner.cache.Commit()
 			if err == nil {
 				log.Donef("Using cached dependencies for bootstrap command. If you would like to force update your dependencies, select `update` as CarthageCommand and re-run your build.")
 				return nil
@@ -82,13 +82,13 @@ func (runner Runner) Run() error {
 	}
 
 	if runner.carthageCommand == bootstrapCommand {
-		log.Infof("Creating cache")
-		if err := runner.cache.Create(); err != nil {
+		log.Infof("Creating cache indicator")
+		if err := runner.cache.CreateIndicator(); err != nil {
 			return err
 		}
 
-		if err := runner.cache.Collect(); err != nil {
-			log.Warnf("Cache collection skipped: %s", err)
+		if err := runner.cache.Commit(); err != nil {
+			log.Warnf("Cache committing skipped: %s", err)
 		}
 	}
 

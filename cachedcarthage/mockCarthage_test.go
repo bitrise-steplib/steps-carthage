@@ -7,14 +7,14 @@ type MockCarthageCache struct {
 	mock.Mock
 }
 
-// Collect provides a mock function with given fields:
-func (m *MockCarthageCache) Collect() error {
+// Commit provides a mock function with given fields:
+func (m *MockCarthageCache) Commit() error {
 	args := m.Called()
 	return args.Error(0)
 }
 
-// Create provides a mock function with given fields:
-func (m *MockCarthageCache) Create() error {
+// CreateIndicator provides a mock function with given fields:
+func (m *MockCarthageCache) CreateIndicator() error {
 	args := m.Called()
 	return args.Error(0)
 }
@@ -35,22 +35,22 @@ func (m *MockCarthageCache) GivenIsAvailableSucceeds(result bool) *MockCarthageC
 	return m
 }
 
-func (m *MockCarthageCache) GivenCollectFails(reason error) *MockCarthageCache {
-	m.On("Collect").Return(reason)
+func (m *MockCarthageCache) GivenCommitFails(reason error) *MockCarthageCache {
+	m.On("Commit").Return(reason)
 	return m
 }
 
-func (m *MockCarthageCache) GivenCollectSucceeds() *MockCarthageCache {
-	m.On("Collect").Return(nil)
+func (m *MockCarthageCache) GivenCommitSucceeds() *MockCarthageCache {
+	m.On("Commit").Return(nil)
 	return m
 }
 
-func (m *MockCarthageCache) GivenCreateFails(reason error) *MockCarthageCache {
-	m.On("Create").Return(reason)
+func (m *MockCarthageCache) GivenCreateIndicatorFails(reason error) *MockCarthageCache {
+	m.On("CreateIndicator").Return(reason)
 	return m
 }
 
-func (m *MockCarthageCache) GivenCreateSucceeds() *MockCarthageCache {
-	m.On("Create").Return(nil)
+func (m *MockCarthageCache) GivenCreateIndicatorSucceeds() *MockCarthageCache {
+	m.On("CreateIndicator").Return(nil)
 	return m
 }

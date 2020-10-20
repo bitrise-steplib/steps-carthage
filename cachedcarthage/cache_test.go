@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Create
-func Test_GivenStateCouldNotBeParsed_WhenCreateCalled_ThenExpectError(t *testing.T) {
+// CreateIndicator
+func Test_GivenStateCouldNotBeParsed_WhenCreateIndicatorCalled_ThenExpectError(t *testing.T) {
 	// Given
 	expectedError := errors.New("sad error")
 	mockStateProvider := givenMockProjectStateProvider().GivenParseStateFails(expectedError)
@@ -27,13 +27,13 @@ func Test_GivenStateCouldNotBeParsed_WhenCreateCalled_ThenExpectError(t *testing
 	}
 
 	// When
-	actualError := cache.Create()
+	actualError := cache.CreateIndicator()
 
 	// Then
 	assert.EqualError(t, expectedError, actualError.Error())
 }
 
-func Test_GivenCarthageDirDoesNotExist_WhenCreateCalled_ThenExpectCarthageDirAndCacheFileToExist(t *testing.T) {
+func Test_GivenCarthageDirDoesNotExist_WhenCreateIndicatorCalled_ThenExpectCarthageDirAndCacheFileToExist(t *testing.T) {
 	// Given
 	tempDir := givenTempDir(t)
 	expectedDir := filepath.Join(tempDir, "Carthage")
@@ -54,7 +54,7 @@ func Test_GivenCarthageDirDoesNotExist_WhenCreateCalled_ThenExpectCarthageDirAnd
 	}
 
 	// When
-	actualError := cache.Create()
+	actualError := cache.CreateIndicator()
 
 	// Then
 	assert.NoError(t, actualError)
@@ -92,8 +92,8 @@ func Test_WhenCacheFileContentCalled_ThenExpectCorrectValue(t *testing.T) {
 	assert.Equal(t, expectedContent, actualContent)
 }
 
-// Collect
-func Test_GivenFileCacheCommitFails_WhenCollectCalled_ThenExpectError(t *testing.T) {
+// Commit
+func Test_GivenFileCacheCommitFails_WhenCommitCalled_ThenExpectError(t *testing.T) {
 	// Given
 	expectedError := errors.New("failed to commit cache paths")
 	mockStateProvider := givenMockProjectStateProvider()
@@ -108,13 +108,13 @@ func Test_GivenFileCacheCommitFails_WhenCollectCalled_ThenExpectError(t *testing
 	}
 
 	// When
-	actualError := cache.Collect()
+	actualError := cache.Commit()
 
 	// Then
 	assert.EqualError(t, expectedError, actualError.Error())
 }
 
-func Test_GivenFileCacheCommitSucceeds_WhenCollectCalled_ThenExpectIncludePathCalledWithCorrectValue(t *testing.T) {
+func Test_GivenFileCacheCommitSucceeds_WhenCommitCalled_ThenExpectIncludePathCalledWithCorrectValue(t *testing.T) {
 	// Given
 	projectDir := "/awesomepath"
 	expectedCacheCall := fmt.Sprintf(
@@ -133,7 +133,7 @@ func Test_GivenFileCacheCommitSucceeds_WhenCollectCalled_ThenExpectIncludePathCa
 	}
 
 	// When
-	actualError := cache.Collect()
+	actualError := cache.Commit()
 
 	// Then
 	assert.NoError(t, actualError)

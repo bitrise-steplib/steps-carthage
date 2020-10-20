@@ -26,8 +26,8 @@ func Test_GivenNotBootstrapCommand_WhenRunCalled_ThenExpectNoErrorAndCacheNotCre
 	// Then
 	assert.NoError(t, error)
 	mockCarthageCache.AssertNotCalled(t, "IsAvailable")
-	mockCarthageCache.AssertNotCalled(t, "Collect")
-	mockCarthageCache.AssertNotCalled(t, "Create")
+	mockCarthageCache.AssertNotCalled(t, "Commit")
+	mockCarthageCache.AssertNotCalled(t, "CreateIndicator")
 }
 
 func Test_GivenBootstrapCommandAndCacheNotAvailableAndCacheCreateFails_WhenRunCalled_ThenExpectError(t *testing.T) {
@@ -35,7 +35,7 @@ func Test_GivenBootstrapCommandAndCacheNotAvailableAndCacheCreateFails_WhenRunCa
 	expectedError := errors.New("sad error")
 	mockCarthageCache := givenMockCarthageCache().
 		GivenIsAvailableSucceeds(false).
-		GivenCreateFails(expectedError)
+		GivenCreateIndicatorFails(expectedError)
 	runner := Runner{
 		carthageCommand: "bootstrap",
 		cache:           mockCarthageCache,
@@ -53,8 +53,8 @@ func Test_GivenBootstrapCommandAndCacheNotAvailableAndCacheCreateSucceeds_WhenRu
 	// Given
 	mockCarthageCache := givenMockCarthageCache().
 		GivenIsAvailableSucceeds(false).
-		GivenCreateSucceeds().
-		GivenCollectSucceeds()
+		GivenCreateIndicatorSucceeds().
+		GivenCommitSucceeds()
 	runner := Runner{
 		carthageCommand: "bootstrap",
 		cache:           mockCarthageCache,
@@ -66,16 +66,16 @@ func Test_GivenBootstrapCommandAndCacheNotAvailableAndCacheCreateSucceeds_WhenRu
 
 	// Then
 	assert.NoError(t, error)
-	mockCarthageCache.AssertCalled(t, "Create")
-	mockCarthageCache.AssertCalled(t, "Collect")
+	mockCarthageCache.AssertCalled(t, "CreateIndicator")
+	mockCarthageCache.AssertCalled(t, "Commit")
 }
 
 func Test_GivenBootstrapCommandAndCacheAvailableAndCollectFails_WhenRunCalled_ThenExpectCommandExecutedCacheCreated(t *testing.T) {
 	// Given
 	mockCarthageCache := givenMockCarthageCache().
 		GivenIsAvailableSucceeds(true).
-		GivenCollectFails(errors.New("sad error")).
-		GivenCreateSucceeds()
+		GivenCommitFails(errors.New("sad error")).
+		GivenCreateIndicatorSucceeds()
 
 	mockCommandBuilder := givenStubbedCommandBuilder()
 
@@ -90,15 +90,15 @@ func Test_GivenBootstrapCommandAndCacheAvailableAndCollectFails_WhenRunCalled_Th
 
 	// Then
 	assert.NoError(t, error)
-	mockCarthageCache.AssertCalled(t, "Create")
-	mockCarthageCache.AssertCalled(t, "Collect")
+	mockCarthageCache.AssertCalled(t, "CreateIndicator")
+	mockCarthageCache.AssertCalled(t, "Commit")
 }
 
 func Test_GivenBootstrapCommandAndCacheAvailableAndCollectSucceeds_WhenRunCalled_ThenExpectCommandNotExecutedAndCacheCreated(t *testing.T) {
 	// Given
 	mockCarthageCache := givenMockCarthageCache().
 		GivenIsAvailableSucceeds(true).
-		GivenCollectSucceeds()
+		GivenCommitSucceeds()
 
 	mockCommandBuilder := givenStubbedCommandBuilderReturnFailingCommand()
 	runner := Runner{
@@ -112,8 +112,8 @@ func Test_GivenBootstrapCommandAndCacheAvailableAndCollectSucceeds_WhenRunCalled
 
 	// Then
 	assert.NoError(t, error)
-	mockCarthageCache.AssertNotCalled(t, "Create")
-	mockCarthageCache.AssertNumberOfCalls(t, "Collect", 1)
+	mockCarthageCache.AssertNotCalled(t, "CreateIndicator")
+	mockCarthageCache.AssertNumberOfCalls(t, "Commit", 1)
 }
 
 // isCacheAvailable

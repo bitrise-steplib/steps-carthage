@@ -38,8 +38,8 @@ func NewCache(project Project, swiftVersion string, filecache FileCache, statePr
 	}
 }
 
-// Create caches the contents of Cartfile.resolved
-func (cache Cache) Create() error {
+// CreateIndicator creates the `Cachefile`.
+func (cache Cache) CreateIndicator() error {
 	state, err := cache.stateProvider.ParseState(cache.project)
 	if err != nil {
 		return err
@@ -60,8 +60,8 @@ func (cache Cache) Create() error {
 	return nil
 }
 
-// Collect loads `fileCache` with the path of carthage directory.
-func (cache Cache) Collect() error {
+// Commit includes the Carthage dir if the Cachefile's content changes.
+func (cache Cache) Commit() error {
 	absCarthageDir, err := filepath.Abs(cache.project.carthageDir())
 	if err != nil {
 		return fmt.Errorf("failed to determine absolute carthage dir")
