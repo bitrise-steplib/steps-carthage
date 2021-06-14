@@ -1,0 +1,158 @@
+format_version: "11"
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+app:
+  envs:
+    - SAMPLE_APP_URL: https://github.com/bitrise-samples/sample-apps-carthage-objc.git
+    - ORIG_BITRISE_SOURCE_DIR: $BITRISE_SOURCE_DIR
+    - SKIP_RUN: false
+    - CARTHAGE_OPTIONS: "--platform ios --project-directory $BITRISE_SOURCE_DIR"
+    - TEST_CACHE: false
+
+workflows:
+  test-without-xcconfig:
+    after_run:
+      - _setup_xcode_version_check
+      - _run
+
+  test-xcconfig-from-env:
+    after_run:
+      - _setup_local_workaround_xconfig_file
+      - _setup_config_env
+      - _run
+
+  test-xcconfig-from-input:
+    envs:
+      - CONFIG_PATH: "file://$TMP_XCODE_XCCONFIG_FILE"
+    after_run:
+      - _setup_local_workaround_xconfig_file
+      - _run
+
+  test-xcconfig-from-input-url:
+    envs:
+      - CONFIG_PATH: "https://raw.githubusercontent.com/bitrise-io/sample-apps-carthage-objc/master/static.xcconfig"
+    after_run:
+      - _run
+
+  test-cache-xcconfig-from-env:
+    envs:
+      - TEST_CACHE: true
+    after_run:
+      - _setup_local_workaround_xconfig_file
+      - _setup_config_env
+      - _run
+
+  _run:
+    steps:
+      - change-workdir:
+          title: Switch working dir to ORIG_BITRISE_SOURCE_DIR
+          inputs:
+            - path: $ORIG_BITRISE_SOURCE_DIR
+      - script:
+          title: Clean _tmp folder
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -e
+                set -v
+                rm -rf $ORIG_BITRISE_SOURCE_DIR/_tmp
+      - script:
+          title: Clear BITRISE_CACHE_INCLUDE_PATHS env
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+                envman add --key BITRISE_CACHE_INCLUDE_PATHS --value ""
+                envman add --key SKIP_RUN --value false
+      - git::https://github.com/bitrise-steplib/bitrise-step-simple-git-clone.git@master:
+          inputs:
+            - repository_url: $SAMPLE_APP_URL
+            - clone_into_dir: "$ORIG_BITRISE_SOURCE_DIR/_tmp"
+            - branch: "master"
+      - change-workdir:
+          title: Switch working dir to test / _tmp dir
+          inputs:
+            - path: $ORIG_BITRISE_SOURCE_DIR/_tmp
+            - is_create_path: true
+      - path::./:
+          run_if: |-
+            {{enveq "SKIP_RUN" "false"}}
+          inputs:
+            - xcconfig: $CONFIG_PATH
+            - carthage_options: $CARTHAGE_OPTIONS
+      - path::./:
+          run_if: |-
+            {{enveq "TEST_CACHE" "true"}}
+          inputs:
+            - xcconfig: $CONFIG_PATH
+            - carthage_options: $CARTHAGE_OPTIONS
+      - script:
+          title: Clear TMP_XCODE_XCCONFIG_FILE
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -ex
+                rm -f $TMP_XCODE_XCCONFIG_FILE
+                envman add --key TMP_XCODE_XCCONFIG_FILE --value ""
+                envman add --key XCODE_XCCONFIG_FILE --value ""
+    after_run:
+      - _check_outputs
+
+  _setup_local_workaround_xconfig_file:
+    steps:
+      - script:
+          inputs:
+            - content: |-
+                #!/bin/bash
+                # source https://github.com/Carthage/Carthage/issues/3019#issuecomment-665136323
+                set -euo pipefail
+
+                xcconfig=$(mktemp /tmp/static.xcconfig.XXXXXX)
+
+                # For Xcode 12 make sure EXCLUDED_ARCHS is set to arm architectures otherwise
+                # the build will fail on lipo due to duplicate architectures.
+                echo 'EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_simulator__NATIVE_ARCH_64_BIT_x86_64__XCODE_1200 = arm64 arm64e armv7 armv7s armv6 armv8' >> $xcconfig
+                echo 'EXCLUDED_ARCHS = $(inherited) $(EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_$(EFFECTIVE_PLATFORM_SUFFIX)__NATIVE_ARCH_64_BIT_$(NATIVE_ARCH_64_BIT)__XCODE_$(XCODE_VERSION_MAJOR))' >> $xcconfig
+
+                envman add --key TMP_XCODE_XCCONFIG_FILE --value "$xcconfig"
+
+  _setup_config_env:
+    steps:
+      - script:
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -euo pipefail
+
+                envman add --key XCODE_XCCONFIG_FILE --value "$TMP_XCODE_XCCONFIG_FILE"
+
+  _setup_xcode_version_check:
+    steps:
+      - script:
+          title: Set SKIP_RUN
+          inputs:
+            - content: |-
+                #!/bin/bash
+
+                if xcodebuild -version | grep -ocE '(11|12)\..*'; then
+                  $SKIP_RUN=false
+                  echo "Xcode 11 or 12 found"
+                else
+                  $SKIP_RUN=true
+                  echo "Xcode 11 or 12 NOT found"
+                fi
+                envman add --key SKIP_RUN --value $SKIP_RUN
+
+  _check_outputs:
+    steps:
+      - script:
+          run_if: |-
+            {{enveq "SKIP_RUN" "false"}}
+          title: Check outputs
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -ex
+                if [ -z "$BITRISE_CACHE_INCLUDE_PATHS" ] ; then echo "BITRISE_CACHE_INCLUDE_PATHS env is empty" ; exit 1 ; fi ;
+                [[ ! -f $ORIG_BITRISE_SOURCE_DIR/_tmp/Carthage/Cachefile ]] && echo "$ORIG_BITRISE_SOURCE_DIR/_tmp/Carthage/Cachefile does not exist" && exit 1
+                exit 0

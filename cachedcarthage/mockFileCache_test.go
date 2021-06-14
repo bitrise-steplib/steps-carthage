@@ -22,7 +22,7 @@ func (m *MockFileCache) Commit() error {
 }
 
 // IncludePath provides a mock function with given fields: _a0
-func (m *MockFileCache) IncludePath(_a0 string) {
+func (m *MockFileCache) IncludePath(_a0 ...string) {
 	m.Called(_a0)
 }
 
