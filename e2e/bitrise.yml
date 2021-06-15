@@ -87,6 +87,7 @@ workflows:
           inputs:
             - xcconfig: $CONFIG_PATH
             - carthage_options: $CARTHAGE_OPTIONS
+            - github_access_token: $GITHUB_TOKEN
       - path::./:
           run_if: |-
             {{enveq "TEST_CACHE" "true"}}
