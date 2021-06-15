@@ -117,10 +117,10 @@ func Test_GivenFileCacheCommitFails_WhenCommitCalled_ThenExpectError(t *testing.
 func Test_GivenFileCacheCommitSucceeds_WhenCommitCalled_ThenExpectIncludePathCalledWithCorrectValue(t *testing.T) {
 	// Given
 	projectDir := "/awesomepath"
-	expectedCacheCall := fmt.Sprintf(
+	expectedCacheCall := []string{fmt.Sprintf(
 		"%s -> %s",
 		filepath.Join(projectDir, "Carthage"),
-		filepath.Join(projectDir, "Carthage/Cachefile"))
+		filepath.Join(projectDir, "Carthage/Cachefile"))}
 	mockStateProvider := givenMockProjectStateProvider()
 	mockFileCache := givenMockFileCache().
 		GivenIncludeSucceeds().
