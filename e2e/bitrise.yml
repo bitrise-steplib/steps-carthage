@@ -90,17 +90,9 @@ workflows:
           inputs:
             - xcconfig: $CONFIG_PATH
             - carthage_options: $CARTHAGE_OPTIONS
-      - script:
-          title: Clear TMP_XCODE_XCCONFIG_FILE
-          inputs:
-            - content: |-
-                #!/usr/bin/env bash
-                set -ex
-                rm -f $TMP_XCODE_XCCONFIG_FILE
-                envman add --key TMP_XCODE_XCCONFIG_FILE --value ""
-                envman add --key XCODE_XCCONFIG_FILE --value ""
     after_run:
       - _check_outputs
+      - _teardown
 
   _setup_local_workaround_xconfig_file:
     steps:
@@ -119,6 +111,18 @@ workflows:
                 echo 'EXCLUDED_ARCHS = $(inherited) $(EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_$(EFFECTIVE_PLATFORM_SUFFIX)__NATIVE_ARCH_64_BIT_$(NATIVE_ARCH_64_BIT)__XCODE_$(XCODE_VERSION_MAJOR))' >> $xcconfig
 
                 envman add --key TMP_XCODE_XCCONFIG_FILE --value "$xcconfig"
+
+  _teardown:
+    steps:
+      - script:
+          title: Clear TMP_XCODE_XCCONFIG_FILE
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -ex
+                rm -f $TMP_XCODE_XCCONFIG_FILE
+                envman add --key TMP_XCODE_XCCONFIG_FILE --value ""
+                envman add --key XCODE_XCCONFIG_FILE --value ""
 
   _setup_config_env:
     steps:
