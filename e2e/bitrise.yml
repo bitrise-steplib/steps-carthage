@@ -10,20 +10,20 @@ app:
     - TEST_CACHE: false
 
 workflows:
-  test-without-xcconfig:
+  test_without_xcconfig:
     before_run:
       - _setup_xcode_version_check
     after_run:
       - _run
 
-  test-xcconfig-from-env:
+  test_xcconfig_from_env:
     before_run:
       - _setup_local_workaround_xconfig_file
       - _setup_config_env
     after_run:
       - _run
 
-  test-xcconfig-from-input:
+  test_xcconfig_from_input:
     envs:
       - CONFIG_PATH: "file://$TMP_XCODE_XCCONFIG_FILE"
     before_run:
@@ -31,13 +31,13 @@ workflows:
     after_run:
       - _run
 
-  test-xcconfig-from-input-url:
+  test_xcconfig_from_input_url:
     envs:
       - CONFIG_PATH: "https://raw.githubusercontent.com/bitrise-io/sample-apps-carthage-objc/master/static.xcconfig"
     after_run:
       - _run
 
-  test-cache-xcconfig-from-env:
+  test_cache_xcconfig_from_env:
     envs:
       - TEST_CACHE: true
     before_run:
