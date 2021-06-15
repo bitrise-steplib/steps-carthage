@@ -6,7 +6,7 @@ app:
     - SAMPLE_APP_URL: https://github.com/bitrise-samples/sample-apps-carthage-objc.git
     - ORIG_BITRISE_SOURCE_DIR: $BITRISE_SOURCE_DIR
     - SKIP_RUN: false
-    - CARTHAGE_OPTIONS: "--platform ios --project-directory $BITRISE_SOURCE_DIR"
+    - CARTHAGE_OPTIONS: "--platform ios --project-directory $BITRISE_SOURCE_DIR/_tmp"
     - TEST_CACHE: false
 
 workflows:
