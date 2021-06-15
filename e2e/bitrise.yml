@@ -11,21 +11,24 @@ app:
 
 workflows:
   test-without-xcconfig:
-    after_run:
+    before_run:
       - _setup_xcode_version_check
+    after_run:
       - _run
 
   test-xcconfig-from-env:
-    after_run:
+    before_run:
       - _setup_local_workaround_xconfig_file
       - _setup_config_env
+    after_run:
       - _run
 
   test-xcconfig-from-input:
     envs:
       - CONFIG_PATH: "file://$TMP_XCODE_XCCONFIG_FILE"
-    after_run:
+    before_run:
       - _setup_local_workaround_xconfig_file
+    after_run:
       - _run
 
   test-xcconfig-from-input-url:
@@ -37,9 +40,10 @@ workflows:
   test-cache-xcconfig-from-env:
     envs:
       - TEST_CACHE: true
-    after_run:
+    before_run:
       - _setup_local_workaround_xconfig_file
       - _setup_config_env
+    after_run:
       - _run
 
   _run:
