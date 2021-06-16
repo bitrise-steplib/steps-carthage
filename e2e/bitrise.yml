@@ -193,8 +193,9 @@ workflows:
                   export XC_VER=1200
                 elif xcodebuild -version | grep -ocE '(13)\..*'; then
                   export XC_VER=1300
-                envman add --key XC_VER --value XC_VER
                 fi
+
+                envman add --key XC_VER --value "$XC_VER"
 
   _check_outputs:
     steps:
