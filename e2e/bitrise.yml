@@ -8,6 +8,8 @@ app:
     - ORIG_BITRISE_SOURCE_DIR: $BITRISE_SOURCE_DIR
     - CARTHAGE_OPTIONS: "--platform ios --project-directory $BITRISE_SOURCE_DIR/_tmp"
     - TEST_CACHE: false
+    - SKIP_RUN: false
+    - XC_VER: ""
     # Shared test secrets
     - GITHUB_TOKEN: $GITHUB_TOKEN
 
