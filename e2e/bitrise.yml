@@ -94,6 +94,7 @@ workflows:
                 elif xcodebuild -version | grep -ocE '(13)\..*'; then
                   export XC_VER=1300
                 envman add --key XC_VER --value XC_VER
+                fi
 
                 # source https://github.com/Carthage/Carthage/issues/3019#issuecomment-665136323
                 # updated from https://github.com/Carthage/Carthage/issues/3201#issuecomment-859516176
