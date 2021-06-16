@@ -16,12 +16,14 @@ app:
 workflows:
   test_without_xcconfig:
     before_run:
+      - _setup_xcode_version
       - _setup_xcode_version_check
     after_run:
       - _run
 
   test_xcconfig_from_env:
     before_run:
+      - _setup_xcode_version
       - _setup_local_workaround_xconfig_file
       - _setup_config_env
     after_run:
@@ -31,6 +33,7 @@ workflows:
     envs:
       - CONFIG_PATH: "file://$TMP_XCODE_XCCONFIG_FILE"
     before_run:
+      - _setup_xcode_version
       - _setup_local_workaround_xconfig_file
     after_run:
       - _run
@@ -38,6 +41,17 @@ workflows:
   test_xcconfig_from_input_url:
     envs:
       - CONFIG_PATH: "https://raw.githubusercontent.com/bitrise-io/sample-apps-carthage-objc/master/static.xcconfig"
+    before_run:
+      - _setup_xcode_version
+    steps:
+      - script:
+          run_if: |-
+            {{enveq "XC_VER" "1300"}}
+          inputs:
+            - content: |-
+                #!/bin/bash
+                export CONFIG_PATH="https://raw.githubusercontent.com/bitrise-io/sample-apps-carthage-objc/master/static_13.xcconfig"
+                envman add --key CONFIG_PATH --value "$CONFIG_PATH"
     after_run:
       - _run
 
@@ -45,6 +59,7 @@ workflows:
     envs:
       - TEST_CACHE: true
     before_run:
+      - _setup_xcode_version
       - _setup_local_workaround_xconfig_file
       - _setup_config_env
     after_run:
@@ -86,15 +101,6 @@ workflows:
           inputs:
             - content: |-
                 #!/bin/bash
-
-                if xcodebuild -version | grep -ocE '(11)\..*'; then
-                  export XC_VER=1100
-                elif xcodebuild -version | grep -ocE '(12)\..*'; then
-                  export XC_VER=1200
-                elif xcodebuild -version | grep -ocE '(13)\..*'; then
-                  export XC_VER=1300
-                envman add --key XC_VER --value XC_VER
-                fi
 
                 # source https://github.com/Carthage/Carthage/issues/3019#issuecomment-665136323
                 # updated from https://github.com/Carthage/Carthage/issues/3201#issuecomment-859516176
@@ -172,6 +178,23 @@ workflows:
                   echo "Xcode 11|12|13 NOT found"
                 fi
                 envman add --key SKIP_RUN --value $SKIP_RUN
+
+  _setup_xcode_version:
+    steps:
+      - script:
+          title: Set XC_VER
+          inputs:
+            - content: |-
+                #!/bin/bash
+
+                if xcodebuild -version | grep -ocE '(11)\..*'; then
+                  export XC_VER=1100
+                elif xcodebuild -version | grep -ocE '(12)\..*'; then
+                  export XC_VER=1200
+                elif xcodebuild -version | grep -ocE '(13)\..*'; then
+                  export XC_VER=1300
+                envman add --key XC_VER --value XC_VER
+                fi
 
   _check_outputs:
     steps:
