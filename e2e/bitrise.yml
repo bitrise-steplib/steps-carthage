@@ -15,12 +15,14 @@ app:
 workflows:
   test_without_xcconfig:
     before_run:
+      - _setup_cleanup
       - _setup_xcode_version_check
     after_run:
       - _run
 
   test_xcconfig_from_env:
     before_run:
+      - _setup_cleanup
       - _setup_local_workaround_xconfig_file
       - _setup_config_env
     after_run:
@@ -30,6 +32,7 @@ workflows:
     envs:
       - CONFIG_PATH: "file://$TMP_XCODE_XCCONFIG_FILE"
     before_run:
+      - _setup_cleanup
       - _setup_local_workaround_xconfig_file
     after_run:
       - _run
@@ -37,6 +40,8 @@ workflows:
   test_xcconfig_from_input_url:
     envs:
       - CONFIG_PATH: "https://raw.githubusercontent.com/bitrise-io/sample-apps-carthage-objc/master/static.xcconfig"
+    before_run:
+      - _setup_cleanup
     after_run:
       - _run
 
@@ -44,6 +49,7 @@ workflows:
     envs:
       - TEST_CACHE: true
     before_run:
+      - _setup_cleanup
       - _setup_local_workaround_xconfig_file
       - _setup_config_env
     after_run:
@@ -51,26 +57,6 @@ workflows:
 
   _run:
     steps:
-      - change-workdir:
-          title: Switch working dir to ORIG_BITRISE_SOURCE_DIR
-          inputs:
-            - path: $ORIG_BITRISE_SOURCE_DIR
-      - script:
-          title: Clean _tmp folder
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -e
-                set -v
-                rm -rf $ORIG_BITRISE_SOURCE_DIR/_tmp
-      - script:
-          title: Clear BITRISE_CACHE_INCLUDE_PATHS env
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
-                envman add --key BITRISE_CACHE_INCLUDE_PATHS --value ""
-                envman add --key SKIP_RUN --value false
       - git::https://github.com/bitrise-steplib/bitrise-step-simple-git-clone.git@master:
           inputs:
             - repository_url: $SAMPLE_APP_URL
@@ -138,6 +124,29 @@ workflows:
                 set -euo pipefail
 
                 envman add --key XCODE_XCCONFIG_FILE --value "$TMP_XCODE_XCCONFIG_FILE"
+
+  _setup_cleanup:
+    steps:
+      - change-workdir:
+          title: Switch working dir to ORIG_BITRISE_SOURCE_DIR
+          inputs:
+            - path: $ORIG_BITRISE_SOURCE_DIR
+      - script:
+          title: Clean _tmp folder
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -e
+                set -v
+                rm -rf $ORIG_BITRISE_SOURCE_DIR/_tmp
+      - script:
+          title: Clear BITRISE_CACHE_INCLUDE_PATHS env
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+                envman add --key BITRISE_CACHE_INCLUDE_PATHS --value ""
+                envman add --key SKIP_RUN --value false
 
   _setup_xcode_version_check:
     steps:
