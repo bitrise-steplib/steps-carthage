@@ -147,12 +147,12 @@ workflows:
             - content: |-
                 #!/bin/bash
 
-                if xcodebuild -version | grep -ocE '(11|12)\..*'; then
-                  $SKIP_RUN=false
-                  echo "Xcode 11 or 12 found"
-                else
+                if xcodebuild -version | grep -ocE '(11|12|13)\..*'; then
                   $SKIP_RUN=true
-                  echo "Xcode 11 or 12 NOT found"
+                  echo "Xcode 11 or 12 or 13 found"
+                else
+                  $SKIP_RUN=false
+                  echo "Xcode 11 or 12 or 13 NOT found"
                 fi
                 envman add --key SKIP_RUN --value $SKIP_RUN
 
