@@ -147,6 +147,7 @@ workflows:
                 set -ex
                 envman add --key BITRISE_CACHE_INCLUDE_PATHS --value ""
                 envman add --key SKIP_RUN --value false
+                unset SKIP_RUN
 
   _setup_xcode_version_check:
     steps:
@@ -157,10 +158,10 @@ workflows:
                 #!/bin/bash
 
                 if xcodebuild -version | grep -ocE '(11|12|13)\..*'; then
-                  $SKIP_RUN=true
+                  export SKIP_RUN=true
                   echo "Xcode 11 or 12 or 13 found"
                 else
-                  $SKIP_RUN=false
+                  export SKIP_RUN=false
                   echo "Xcode 11 or 12 or 13 NOT found"
                 fi
                 envman add --key SKIP_RUN --value $SKIP_RUN
