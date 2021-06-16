@@ -6,7 +6,6 @@ app:
     # Shared test configs
     - SAMPLE_APP_URL: https://github.com/bitrise-samples/sample-apps-carthage-objc.git
     - ORIG_BITRISE_SOURCE_DIR: $BITRISE_SOURCE_DIR
-    - SKIP_RUN: false
     - CARTHAGE_OPTIONS: "--platform ios --project-directory $BITRISE_SOURCE_DIR/_tmp"
     - TEST_CACHE: false
     # Shared test secrets
@@ -15,14 +14,12 @@ app:
 workflows:
   test_without_xcconfig:
     before_run:
-      - _setup_cleanup
       - _setup_xcode_version_check
     after_run:
       - _run
 
   test_xcconfig_from_env:
     before_run:
-      - _setup_cleanup
       - _setup_local_workaround_xconfig_file
       - _setup_config_env
     after_run:
@@ -32,7 +29,6 @@ workflows:
     envs:
       - CONFIG_PATH: "file://$TMP_XCODE_XCCONFIG_FILE"
     before_run:
-      - _setup_cleanup
       - _setup_local_workaround_xconfig_file
     after_run:
       - _run
@@ -40,8 +36,6 @@ workflows:
   test_xcconfig_from_input_url:
     envs:
       - CONFIG_PATH: "https://raw.githubusercontent.com/bitrise-io/sample-apps-carthage-objc/master/static.xcconfig"
-    before_run:
-      - _setup_cleanup
     after_run:
       - _run
 
@@ -49,7 +43,6 @@ workflows:
     envs:
       - TEST_CACHE: true
     before_run:
-      - _setup_cleanup
       - _setup_local_workaround_xconfig_file
       - _setup_config_env
     after_run:
@@ -97,12 +90,12 @@ workflows:
 
                 xcconfig=$(mktemp /tmp/static.xcconfig.XXXXXX)
 
-                CURRENT_XCODE_VERSION="$(xcodebuild -version | grep "Xcode" | cut -d' ' -f2 | cut -d'.' -f1)00"
-
                 # For Xcode 12 make sure EXCLUDED_ARCHS is set to arm architectures otherwise
                 # the build will fail on lipo due to duplicate architectures.
-                echo 'EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_simulator__NATIVE_ARCH_64_BIT_x86_64__XCODE_$(CURRENT_XCODE_VERSION) = arm64 arm64e armv7 armv7s armv6 armv8' >> $xcconfig
+                echo 'EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_simulator__NATIVE_ARCH_64_BIT_x86_64__XCODE_$(XC_VER) = arm64 arm64e armv7 armv7s armv6 armv8' >> $xcconfig
                 echo 'EXCLUDED_ARCHS = $(inherited) $(EXCLUDED_ARCHS__EFFECTIVE_PLATFORM_SUFFIX_$(EFFECTIVE_PLATFORM_SUFFIX)__NATIVE_ARCH_64_BIT_$(NATIVE_ARCH_64_BIT)__XCODE_$(XCODE_VERSION_MAJOR))' >> $xcconfig
+
+                cat "$xcconfig"
 
                 envman add --key TMP_XCODE_XCCONFIG_FILE --value "$xcconfig"
 
@@ -117,19 +110,6 @@ workflows:
                 rm -f $TMP_XCODE_XCCONFIG_FILE
                 envman add --key TMP_XCODE_XCCONFIG_FILE --value ""
                 envman add --key XCODE_XCCONFIG_FILE --value ""
-
-  _setup_config_env:
-    steps:
-      - script:
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -euo pipefail
-
-                envman add --key XCODE_XCCONFIG_FILE --value "$TMP_XCODE_XCCONFIG_FILE"
-
-  _setup_cleanup:
-    steps:
       - change-workdir:
           title: Switch working dir to ORIG_BITRISE_SOURCE_DIR
           inputs:
@@ -150,7 +130,19 @@ workflows:
                 set -ex
                 envman add --key BITRISE_CACHE_INCLUDE_PATHS --value ""
                 envman add --key SKIP_RUN --value false
+                envman add --key XC_VER --value ""
                 unset SKIP_RUN
+                unset XC_VER
+
+  _setup_config_env:
+    steps:
+      - script:
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -euo pipefail
+
+                envman add --key XCODE_XCCONFIG_FILE --value "$TMP_XCODE_XCCONFIG_FILE"
 
   _setup_xcode_version_check:
     steps:
@@ -160,9 +152,18 @@ workflows:
             - content: |-
                 #!/bin/bash
 
-                if xcodebuild -version | grep -ocE '(11|12|13)\..*'; then
+                if xcodebuild -version | grep -ocE '(11)\..*'; then
                   export SKIP_RUN=true
-                  echo "Xcode 11 or 12 or 13 found"
+                  export XC_VER=1100
+                  echo "Xcode 11 found"
+                elif xcodebuild -version | grep -ocE '(12)\..*'; then
+                  export SKIP_RUN=true
+                  export XC_VER=1200
+                  echo "Xcode 12 found"
+                elif xcodebuild -version | grep -ocE '(13)\..*'; then
+                  export SKIP_RUN=true
+                  export XC_VER=1300
+                  echo "Xcode 13 found"
                 else
                   export SKIP_RUN=false
                   echo "Xcode 11 or 12 or 13 NOT found"
