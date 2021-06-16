@@ -86,6 +86,15 @@ workflows:
           inputs:
             - content: |-
                 #!/bin/bash
+
+                if xcodebuild -version | grep -ocE '(11)\..*'; then
+                  export XC_VER=1100
+                elif xcodebuild -version | grep -ocE '(12)\..*'; then
+                  export XC_VER=1200
+                elif xcodebuild -version | grep -ocE '(13)\..*'; then
+                  export XC_VER=1300
+                envman add --key XC_VER --value XC_VER
+
                 # source https://github.com/Carthage/Carthage/issues/3019#issuecomment-665136323
                 # updated from https://github.com/Carthage/Carthage/issues/3201#issuecomment-859516176
                 set -euo pipefail
@@ -154,21 +163,12 @@ workflows:
             - content: |-
                 #!/bin/bash
 
-                if xcodebuild -version | grep -ocE '(11)\..*'; then
+                if xcodebuild -version | grep -ocE '(11|12|13)\..*'; then
                   export SKIP_RUN=true
-                  export XC_VER=1100
-                  echo "Xcode 11 found"
-                elif xcodebuild -version | grep -ocE '(12)\..*'; then
-                  export SKIP_RUN=true
-                  export XC_VER=1200
-                  echo "Xcode 12 found"
-                elif xcodebuild -version | grep -ocE '(13)\..*'; then
-                  export SKIP_RUN=true
-                  export XC_VER=1300
-                  echo "Xcode 13 found"
+                  echo "Xcode 11|12|13 found"
                 else
                   export SKIP_RUN=false
-                  echo "Xcode 11 or 12 or 13 NOT found"
+                  echo "Xcode 11|12|13 NOT found"
                 fi
                 envman add --key SKIP_RUN --value $SKIP_RUN
 
