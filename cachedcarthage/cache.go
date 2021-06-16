@@ -11,7 +11,7 @@ import (
 
 // FileCache ...
 type FileCache interface {
-	IncludePath(string)
+	IncludePath(...string)
 	Commit() error
 }
 
