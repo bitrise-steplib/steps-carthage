@@ -12,18 +12,6 @@ workflows:
           inputs:
             - workflow: e2e
 
-  ci:
-    after_run:
-      - check
-      - e2e
-
-  test-xcconfig-from-input:
-    steps:
-      - bitrise-run:
-          inputs:
-            - bitrise_config_path: "e2e/bitrise.yml"
-            - workflow_id: "test_xcconfig_from_input"
-
   sample:
     envs:
       - ORIG_BITRISE_SOURCE_DIR: $BITRISE_SOURCE_DIR
