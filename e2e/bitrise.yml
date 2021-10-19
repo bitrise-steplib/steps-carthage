@@ -121,6 +121,7 @@ workflows:
     steps:
       - script:
           title: Clear TMP_XCODE_XCCONFIG_FILE
+          is_always_run: true
           inputs:
             - content: |-
                 #!/usr/bin/env bash
@@ -130,10 +131,12 @@ workflows:
                 envman add --key XCODE_XCCONFIG_FILE --value ""
       - change-workdir:
           title: Switch working dir to ORIG_BITRISE_SOURCE_DIR
+          is_always_run: true
           inputs:
             - path: $ORIG_BITRISE_SOURCE_DIR
       - script:
           title: Clean _tmp folder
+          is_always_run: true
           inputs:
             - content: |-
                 #!/bin/bash
@@ -142,6 +145,7 @@ workflows:
                 rm -rf $ORIG_BITRISE_SOURCE_DIR/_tmp
       - script:
           title: Clear BITRISE_CACHE_INCLUDE_PATHS env
+          is_always_run: true
           inputs:
             - content: |-
                 #!/bin/bash

@@ -1,16 +1,21 @@
 package cachedcarthage
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
+	"time"
 
 	"github.com/bitrise-io/go-steputils/stepconf"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-io/go-utils/retry"
 )
 
 const (
 	bootstrapCommand = "bootstrap"
+	updateCommand    = "update"
 )
 
 // CarthageCache ...
@@ -25,7 +30,7 @@ type CommandBuilder interface {
 	AddGitHubToken(githubToken stepconf.Secret) CommandBuilder
 	AddXCConfigFile(path string) CommandBuilder
 	Append(args ...string) CommandBuilder
-	Command() *command.Model
+	Command(stdout io.Writer, stderr io.Writer) command.Command
 }
 
 // Runner can be used to execute Carthage command and cache the results.
@@ -62,7 +67,7 @@ func (runner Runner) Run() error {
 
 	if runner.carthageCommand == bootstrapCommand {
 		if runner.isCacheAvailable() {
-			log.Successf("Cache available")
+			log.Donef("Cache available")
 
 			log.Infof("Committing Cachefile...")
 			err := runner.cache.Commit()
@@ -77,8 +82,12 @@ func (runner Runner) Run() error {
 		}
 	}
 
-	if err := runner.executeCommand(); err != nil {
-		return fmt.Errorf("Carthage command failed, error: %s", err)
+	if err := runner.perform(); err != nil {
+		if runnerErr, ok := err.(*RunnerError); ok {
+			runnerErr.Err = fmt.Errorf("Carthage command failed, error: %s", runnerErr.Err)
+		}
+
+		return err
 	}
 
 	if runner.carthageCommand == bootstrapCommand {
@@ -106,6 +115,26 @@ func (runner Runner) isCacheAvailable() bool {
 	return cacheAvailable
 }
 
+func (runner Runner) perform() error {
+	var function = runner.executeCommand
+
+	if contains(getRetryableCommands(), runner.carthageCommand) {
+		function = func() error {
+			return retry.Times(1).Wait(3 * time.Second).TryWithAbort(func(attempt uint) (error, bool) {
+				if attempt > 0 {
+					log.Warnf("Carthage %s (possible) network failure, retrying ...", runner.carthageCommand)
+				}
+
+				err := runner.executeCommand()
+
+				return err, !hasRetryableFailure(err)
+			})
+		}
+	}
+
+	return function()
+}
+
 func (runner Runner) executeCommand() error {
 	log.Infof("Running Carthage command")
 
@@ -114,12 +143,27 @@ func (runner Runner) executeCommand() error {
 		AddXCConfigFile(runner.xcconfigPath).
 		Append(runner.carthageCommand).
 		Append(runner.args...)
-	cmd := builder.Command()
+	var stderrBuf bytes.Buffer
 
-	cmd.SetStdout(os.Stdout)
-	cmd.SetStderr(os.Stderr)
+	cmd := builder.Command(os.Stdout, io.MultiWriter(os.Stderr, &stderrBuf))
 
 	log.Donef("$ %s", cmd.PrintableCommandArgs())
 
-	return cmd.Run()
+	err := cmd.Run()
+
+	if err == nil {
+		return nil
+	}
+
+	return &RunnerError{string(stderrBuf.Bytes()), err}
+}
+
+func contains(slice []string, value string) bool {
+	for _, item := range slice {
+		if value == item {
+			return true
+		}
+	}
+
+	return false
 }
