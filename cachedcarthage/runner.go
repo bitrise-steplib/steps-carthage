@@ -15,7 +15,7 @@ import (
 
 const (
 	bootstrapCommand = "bootstrap"
-	updateCommand = "update"
+	updateCommand    = "update"
 )
 
 // CarthageCache ...
@@ -67,7 +67,7 @@ func (runner Runner) Run() error {
 
 	if runner.carthageCommand == bootstrapCommand {
 		if runner.isCacheAvailable() {
-			log.Infof("Cache available")
+			log.Donef("Cache available")
 
 			log.Infof("Committing Cachefile...")
 			err := runner.cache.Commit()
