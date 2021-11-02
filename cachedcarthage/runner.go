@@ -155,7 +155,7 @@ func (runner Runner) executeCommand() error {
 		return nil
 	}
 
-	return &RunnerError{string(stderrBuf.Bytes()), err}
+	return &RunnerError{stderrBuf.String(), err}
 }
 
 func contains(slice []string, value string) bool {
