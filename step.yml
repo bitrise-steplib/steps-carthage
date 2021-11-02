@@ -26,75 +26,75 @@ website: https://github.com/bitrise-steplib/steps-carthage
 source_code_url: https://github.com/bitrise-steplib/steps-carthage
 support_url: https://github.com/bitrise-steplib/steps-carthage/issues
 host_os_tags:
-  - "osx-10.10"
+- osx-10.10
 project_type_tags:
-  - ios
-  - macos
-  - cordova
-  - ionic
-  - react-native
-  - flutter
+- ios
+- macos
+- cordova
+- ionic
+- react-native
+- flutter
 type_tags:
-  - dependency
+- dependency
 is_requires_admin_user: false
 is_always_run: false
 is_skippable: false
 deps:
   brew:
-    - name: go
-    - name: carthage
+  - name: go
+  - name: carthage
   apt_get:
-    - name: golang
-      bin_name: go
+  - name: golang
+    bin_name: go
 toolkit:
   go:
     package_name: github.com/bitrise-steplib/steps-carthage
 inputs:
-  - carthage_command: "bootstrap"
-    opts:
-      title: Carthage command to run
-      summary: Select a command to set up your dependencies. The step will cache your dependencies only when using `bootstrap` in this input and you have `cache-pull` and `cache-push` steps in your workflow.
-      description: |-
-        Select a command to set up your dependencies.
+- carthage_command: bootstrap
+  opts:
+    title: Carthage command to run
+    summary: Select a command to set up your dependencies. The step will cache your dependencies only when using `bootstrap` in this input and you have `cache-pull` and `cache-push` steps in your workflow.
+    description: |-
+      Select a command to set up your dependencies.
 
-        The step will cache your dependencies only when using `bootstrap` in this input and you have `cache-pull` and `cache-push` steps in your workflow.
+      The step will cache your dependencies only when using `bootstrap` in this input and you have `cache-pull` and `cache-push` steps in your workflow.
 
-        To see available commands run: `carthage help` on your local machine.
-      is_required: true
-  - carthage_options:
-    opts:
-      title: Additional options for `carthage` command
-      description: |-
-        Options added to the end of the Carthage call.
-        You can use multiple options, separated by a space character.
+      To see available commands run: `carthage help` on your local machine.
+    is_required: true
+- carthage_options:
+  opts:
+    title: Additional options for `carthage` command
+    description: |-
+      Options added to the end of the Carthage call.
+      You can use multiple options, separated by a space character.
 
-        To see available command's options, call `carthage help COMMAND` 
+      To see available command's options, call `carthage help COMMAND`
 
-        Format example: `--platform ios`
-  - github_access_token: $GITHUB_ACCESS_TOKEN
-    opts:
-      title: Github Personal Access Token
-      description: |-
-        Use this input to avoid Github rate limit issues.
+      Format example: `--platform ios`
+- github_access_token: $GITHUB_ACCESS_TOKEN
+  opts:
+    title: Github Personal Access Token
+    description: |-
+      Use this input to avoid Github rate limit issues.
 
-        See the github's guide: [Creating an access token for command-line use](https://help.github.com/articles/creating-an-access-token-for-command-line-use/),   
-        how to create Personal Access Token.
+      See the github's guide: [Creating an access token for command-line use](https://help.github.com/articles/creating-an-access-token-for-command-line-use/),
+      how to create Personal Access Token.
 
-        __UNCHECK EVERY SCOPE BOX__ when creating this token. There is no reason this token needs access to private information.
-      is_sensitive: true
-  - xcconfig:
-    opts:
-      title: Custom xcconfig file to add to Carthage environment
-      description: |-
-        Use this input to provide an `xcconfig` file as a workaround for the Xcode 12 issue. For more information, see [the Github issue](https://github.com/Carthage/Carthage/issues/3019).
+      __UNCHECK EVERY SCOPE BOX__ when creating this token. There is no reason this token needs access to private information.
+    is_sensitive: true
+- xcconfig:
+  opts:
+    title: Custom xcconfig file to add to Carthage environment
+    description: |-
+      Use this input to provide an `xcconfig` file as a workaround for the Xcode 12 issue. For more information, see [the Github issue](https://github.com/Carthage/Carthage/issues/3019).
 
-        Can either be a local file provided with the `file://` scheme (like `file://path/to/file.xcconfig`) or an URL (like https://domain.com/file.xconfig).
-  - verbose_log: "no"
-    opts:
-      category: Debug
-      title: "Enable verbose logging?"
-      description: Enable verbose logging?
-      is_required: true
-      value_options:
-        - "yes"
-        - "no"
+      Can either be a local file provided with the `file://` scheme (like `file://path/to/file.xcconfig`) or an URL (like https://domain.com/file.xconfig).
+- verbose_log: "no"
+  opts:
+    category: Debug
+    title: Enable verbose logging?
+    description: Enable verbose logging?
+    is_required: true
+    value_options:
+    - "yes"
+    - "no"
