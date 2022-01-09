@@ -1,6 +1,7 @@
 package carthage
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/bitrise-io/go-steputils/stepconf"
@@ -27,7 +28,7 @@ func Test_WhenGitHubTokenAppended_ThenResultCommandContainsToken(t *testing.T) {
 	builder := NewCLIBuilder()
 
 	// When
-	command := builder.AddGitHubToken(expectedToken).Append("version").Command(nil, nil)
+	command := builder.AddGitHubToken(expectedToken).Append("version").Command()
 
 	// Then
 	assert.Equal(t, expectedCommand, command.PrintableCommandArgs())
@@ -42,7 +43,7 @@ func Test_WhenXCConfigFileAppended_ThenResultCommandContainsPath(t *testing.T) {
 	builder := NewCLIBuilder()
 
 	// When
-	command := builder.AddXCConfigFile(path).Append("version").Command(nil, nil)
+	command := builder.AddXCConfigFile(path).Append("version").Command()
 
 	// Then
 	assert.Equal(t, expectedCommand, command.PrintableCommandArgs())
