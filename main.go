@@ -10,7 +10,6 @@ import (
 	"github.com/bitrise-io/go-steputils/input"
 	"github.com/bitrise-io/go-steputils/stepconf"
 	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/env"
 	"github.com/bitrise-io/go-utils/filedownloader"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-steplib/steps-carthage/cachedcarthage"
@@ -48,7 +47,7 @@ func fail(format string, v ...interface{}) {
 
 func main() {
 	var configs Config
-	if err := stepconf.NewInputParser(env.NewRepository()).Parse(&configs); err != nil {
+	if err := stepconf.Parse(&configs); err != nil {
 		fail("Could not create config: %s", err)
 	}
 	stepconf.Print(configs)
@@ -132,7 +131,7 @@ func parseCarthageOptions(config Config) []string {
 }
 
 func getCarthageVersion() (*version.Version, error) {
-	cmd := carthage.NewCLIBuilder().Append("version").Command(nil, nil)
+	cmd := carthage.NewCLIBuilder().Append("version").Command()
 	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 	if err != nil {
 		return nil, err
@@ -150,7 +149,7 @@ func getCarthageVersion() (*version.Version, error) {
 }
 
 func getSwiftVersion() (string, error) {
-	cmd := command.NewFactory(env.NewRepository()).Create("swift", []string{"-version"}, nil)
+	cmd := command.New("swift", "-version")
 	return cmd.RunAndReturnTrimmedCombinedOutput()
 }
 

@@ -30,8 +30,8 @@ func hasRetryableFailure(err error) bool {
 	if errors.As(err, &runnerError) {
 		output := strings.ToLower(runnerError.Output)
 
-		for _, string := range getErrorSlices(){
-			if strings.Contains(output, string) {
+		for _, str := range getErrorSlices(){
+			if strings.Contains(output, str) {
 				return true
 			}
 		}
