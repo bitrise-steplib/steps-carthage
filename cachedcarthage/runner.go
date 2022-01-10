@@ -30,7 +30,7 @@ type CommandBuilder interface {
 	AddGitHubToken(githubToken stepconf.Secret) CommandBuilder
 	AddXCConfigFile(path string) CommandBuilder
 	Append(args ...string) CommandBuilder
-	Command(stdout io.Writer, stderr io.Writer) command.Command
+	Command() *command.Model
 }
 
 // Runner can be used to execute Carthage command and cache the results.
@@ -145,7 +145,9 @@ func (runner Runner) executeCommand() error {
 		Append(runner.args...)
 	var stderrBuf bytes.Buffer
 
-	cmd := builder.Command(os.Stdout, io.MultiWriter(os.Stderr, &stderrBuf))
+	cmd := builder.Command()
+	cmd.SetStdout(os.Stdout)
+	cmd.SetStderr(io.MultiWriter(os.Stderr, &stderrBuf))
 
 	log.Donef("$ %s", cmd.PrintableCommandArgs())
 

@@ -2,6 +2,7 @@ package cachedcarthage
 
 import (
 	"errors"
+	"github.com/bitrise-io/go-utils/command"
 	"github.com/stretchr/testify/mock"
 	"testing"
 
@@ -9,8 +10,8 @@ import (
 )
 
 // The first part writes the given string to stderr and the second part provides the exit code 1.
-const(
-	failingCommandWithTimeoutStderr = "echo timed out 1>&2 && false"
+const (
+	failingCommandWithTimeoutStderr           = "echo timed out 1>&2 && false"
 	failingCommandWithFailedToConnectToStderr = "echo failed to connect to 1>&2 && false"
 )
 
@@ -26,10 +27,10 @@ func Test_GivenNotBootstrapCommand_WhenRunCalled_ThenExpectNoErrorAndCacheNotCre
 	}
 
 	// When
-	error := runner.Run()
+	err := runner.Run()
 
 	// Then
-	assert.NoError(t, error)
+	assert.NoError(t, err)
 	mockCarthageCache.AssertNotCalled(t, "IsAvailable")
 	mockCarthageCache.AssertNotCalled(t, "Commit")
 	mockCarthageCache.AssertNotCalled(t, "CreateIndicator")
@@ -48,10 +49,10 @@ func Test_GivenBootstrapCommandAndCacheNotAvailableAndCacheCreateFails_WhenRunCa
 	}
 
 	// When
-	error := runner.Run()
+	err := runner.Run()
 
 	// Then
-	assert.EqualError(t, expectedError, error.Error())
+	assert.EqualError(t, expectedError, err.Error())
 }
 
 func Test_GivenBootstrapCommandAndCacheNotAvailableAndCacheCreateSucceeds_WhenRunCalled_ThenExpectNoError(t *testing.T) {
@@ -67,10 +68,10 @@ func Test_GivenBootstrapCommandAndCacheNotAvailableAndCacheCreateSucceeds_WhenRu
 	}
 
 	// When
-	error := runner.Run()
+	err := runner.Run()
 
 	// Then
-	assert.NoError(t, error)
+	assert.NoError(t, err)
 	mockCarthageCache.AssertCalled(t, "CreateIndicator")
 	mockCarthageCache.AssertCalled(t, "Commit")
 }
@@ -91,10 +92,10 @@ func Test_GivenBootstrapCommandAndCacheAvailableAndCollectFails_WhenRunCalled_Th
 	}
 
 	// When
-	error := runner.Run()
+	err := runner.Run()
 
 	// Then
-	assert.NoError(t, error)
+	assert.NoError(t, err)
 	mockCarthageCache.AssertCalled(t, "CreateIndicator")
 	mockCarthageCache.AssertCalled(t, "Commit")
 }
@@ -113,10 +114,10 @@ func Test_GivenBootstrapCommandAndCacheAvailableAndCollectSucceeds_WhenRunCalled
 	}
 
 	// When
-	error := runner.Run()
+	err := runner.Run()
 
 	// Then
-	assert.NoError(t, error)
+	assert.NoError(t, err)
 	mockCarthageCache.AssertNotCalled(t, "CreateIndicator")
 	mockCarthageCache.AssertNumberOfCalls(t, "Commit", 1)
 }
@@ -124,86 +125,62 @@ func Test_GivenBootstrapCommandAndCacheAvailableAndCollectSucceeds_WhenRunCalled
 // Retry on failure
 func Test_GivenBootstrapCommandAndSingleNetworkFailure_WhenRunCalled_ThenExpectCommandToBeRetriedAndSucceed(t *testing.T) {
 	// Given
-	blueprints := []CommandBlueprint{
-		{
-			Command:   "bash",
-			Arguments: []string{"-c", failingCommandWithTimeoutStderr},
-		},
-		{
-			Command:   "echo",
-			Arguments: []string{"hello"},
-		},
+	commands := []*command.Model{
+		command.New("bash", "-c", failingCommandWithTimeoutStderr),
+		command.New("echo", "hello"),
 	}
-	runner := givenRunnerWithMainAndCommandBuilderCommands("bootstrap", blueprints)
+	runner := givenRunnerWithMainAndCommandBuilderCommands("bootstrap", commands)
 
 	// When
-	error := runner.Run()
+	err := runner.Run()
 
 	// Then
-	assert.NoError(t, error)
+	assert.NoError(t, err)
 }
 
 func Test_GivenBootstrapCommandAndPermanentNetworkFailure_WhenRunCalled_ThenExpectCommandToFail(t *testing.T) {
 	// Given
-	blueprints := []CommandBlueprint{
-		{
-			Command:   "bash",
-			Arguments: []string{"-c", failingCommandWithTimeoutStderr},
-		},
-		{
-			Command:   "bash",
-			Arguments: []string{"-c", failingCommandWithFailedToConnectToStderr},
-		},
+	blueprints := []*command.Model{
+		command.New("bash", "-c", failingCommandWithTimeoutStderr),
+		command.New("bash", "-c", failingCommandWithFailedToConnectToStderr),
 	}
 	runner := givenRunnerWithMainAndCommandBuilderCommands("bootstrap", blueprints)
 
 	// When
-	error := runner.Run()
+	err := runner.Run()
 
 	// Then
-	assert.Error(t, error)
+	assert.Error(t, err)
 }
 
 func Test_GivenUpdateCommandAndSingleNetworkFailure_WhenRunCalled_ThenExpectCommandToBeRetriedAndSucceed(t *testing.T) {
 	// Given
-	blueprints := []CommandBlueprint{
-		{
-			Command:   "bash",
-			Arguments: []string{"-c", failingCommandWithFailedToConnectToStderr},
-		},
-		{
-			Command:   "echo",
-			Arguments: []string{"hello"},
-		},
+	blueprints := []*command.Model{
+		command.New("bash", "-c", failingCommandWithFailedToConnectToStderr),
+		command.New("echo", "hello"),
 	}
 	runner := givenRunnerWithMainAndCommandBuilderCommands("update", blueprints)
 
 	// When
-	error := runner.Run()
+	err := runner.Run()
 
 	// Then
-	assert.NoError(t, error)
+	assert.NoError(t, err)
 }
 
 func Test_GivenUpdateCommandAndPermanentNetworkFailure_WhenRunCalled_ThenExpectCommandToFail(t *testing.T) {
 	// Given
-	blueprints := []CommandBlueprint{
-		{
-			Command:   "bash",
-			Arguments: []string{"-c", failingCommandWithFailedToConnectToStderr},
-		},
-		{
-			Command:   "bash",
-			Arguments: []string{"-c", failingCommandWithTimeoutStderr},
-		},
+	blueprints := []*command.Model{
+		command.New("bash", "-c", failingCommandWithFailedToConnectToStderr),
+		command.New("bash", "-c", failingCommandWithTimeoutStderr),
 	}
 	runner := givenRunnerWithMainAndCommandBuilderCommands("update", blueprints)
 
 	// When
-	error := runner.Run()
+	err := runner.Run()
 
 	// Then
-	assert.Error(t, error)
+	assert.Error(t, err)
 }
 
 // isCacheAvailable
@@ -225,7 +202,7 @@ func Test_GivenCarthageCacheAvailableFails_WhenIsCacheAvailableCalled_ThenExpect
 
 func Test_GivenCarthageCacheAvailableSucceeds_WhenIsCacheAvailableCalled_ThenExpectResult(t *testing.T) {
 	// Given
-	expectedAvailable := true
+	const expectedAvailable = true
 	mockCarthageCache := givenMockCarthageCache().
 		GivenIsAvailableSucceeds(expectedAvailable)
 
@@ -244,22 +221,22 @@ func Test_GivenCarthageCacheAvailableSucceeds_WhenIsCacheAvailableCalled_ThenExp
 func Test_GivenCommadSucceeds_WhenExecuteCommandCalled_ThenExpectNoError(t *testing.T) {
 	// Given
 	mockCommandBuilder := givenStubbedCommandBuilder()
-	command := "version"
+	cmd := "version"
 	args := []string{"arg1"}
 	runner := Runner{
-		carthageCommand: command,
+		carthageCommand: cmd,
 		args:            args,
 		commandBuilder:  mockCommandBuilder,
 	}
 
 	// When
-	error := runner.executeCommand()
+	err := runner.executeCommand()
 
 	// Then
-	assert.NoError(t, error)
+	assert.NoError(t, err)
 	mockCommandBuilder.AssertCalled(t, "AddGitHubToken", mock.Anything)
 	mockCommandBuilder.AssertCalled(t, "AddXCConfigFile", mock.Anything)
-	mockCommandBuilder.AssertCalled(t, "Append", []string{command})
+	mockCommandBuilder.AssertCalled(t, "Append", []string{cmd})
 	mockCommandBuilder.AssertCalled(t, "Append", args)
 }
 
@@ -269,32 +246,26 @@ func givenMockCarthageCache() *MockCarthageCache {
 }
 
 func givenStubbedCommandBuilder() *MockCommandBuilder {
-	blueprint := CommandBlueprint{
-		Command:   "echo",
-		Arguments: []string{"hello"},
-	}
+	cmd := command.New("echo", "hello")
 	mockCommandBuilder := new(MockCommandBuilder).
 		GivenAddGitHubTokenSucceeds().
 		GivenAddXCConfigFileSucceeds().
 		GivenAppendSucceeds().
-		GivenCommandReturned(blueprint)
+		GivenCommandReturned(cmd)
 	return mockCommandBuilder
 }
 
 func givenStubbedCommandBuilderReturnFailingCommand() *MockCommandBuilder {
-	blueprint := CommandBlueprint{
-		Command:   "fail",
-		Arguments: nil,
-	}
+	cmd := command.New("fail")
 	mockCommandBuilder := new(MockCommandBuilder).
 		GivenAddGitHubTokenSucceeds().
 		GivenAddXCConfigFileSucceeds().
 		GivenAppendSucceeds().
-		GivenCommandReturned(blueprint)
+		GivenCommandReturned(cmd)
 	return mockCommandBuilder
 }
 
-func givenRunnerWithMainAndCommandBuilderCommands(mainCommand string, commandBlueprints []CommandBlueprint) Runner {
+func givenRunnerWithMainAndCommandBuilderCommands(mainCommand string, commands []*command.Model) Runner {
 	mockCarthageCache := givenMockCarthageCache().
 		GivenIsAvailableSucceeds(false).
 		GivenCreateIndicatorSucceeds().
@@ -303,11 +274,11 @@ func givenRunnerWithMainAndCommandBuilderCommands(mainCommand string, commandBlu
 	return Runner{
 		carthageCommand: mainCommand,
 		cache:           mockCarthageCache,
-		commandBuilder:  givenStubbedCommandBuilderReturnsCommands(commandBlueprints),
+		commandBuilder:  givenStubbedCommandBuilderReturnsCommands(commands),
 	}
 }
 
-func givenStubbedCommandBuilderReturnsCommands(commandBlueprints []CommandBlueprint) *MockCommandBuilder {
+func givenStubbedCommandBuilderReturnsCommands(commandBlueprints []*command.Model) *MockCommandBuilder {
 	mockCommandBuilder := new(MockCommandBuilder).
 		GivenAddGitHubTokenSucceeds().
 		GivenAddXCConfigFileSucceeds().
