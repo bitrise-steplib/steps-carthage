@@ -28,12 +28,13 @@ support_url: https://github.com/bitrise-steplib/steps-carthage/issues
 host_os_tags:
 - osx-10.10
 project_type_tags:
-- ios
-- macos
 - cordova
-- ionic
-- react-native
 - flutter
+- ionic
+- ios
+- kotlin-multiplatform
+- macos
+- react-native
 type_tags:
 - dependency
 is_requires_admin_user: false
