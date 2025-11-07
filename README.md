@@ -31,7 +31,7 @@ It is important that you use `bootstrap` Carthage command, as this is the only c
 
 ## 🧩 Get started
 
-Add this step directly to your workflow in the [Bitrise Workflow Editor](https://devcenter.bitrise.io/steps-and-workflows/steps-and-workflows-index/).
+Add this step directly to your workflow in the [Bitrise Workflow Editor](https://docs.bitrise.io/en/bitrise-ci/workflows-and-pipelines/steps/adding-steps-to-a-workflow.html).
 
 You can also run this step directly with [Bitrise CLI](https://github.com/bitrise-io/bitrise).
 
@@ -43,8 +43,8 @@ You can also run this step directly with [Bitrise CLI](https://github.com/bitris
 | Key | Description | Flags | Default |
 | --- | --- | --- | --- |
 | `carthage_command` | Select a command to set up your dependencies.  The step will cache your dependencies only when using `bootstrap` in this input and you have `cache-pull` and `cache-push` steps in your workflow.  To see available commands run: `carthage help` on your local machine. | required | `bootstrap` |
-| `carthage_options` | Options added to the end of the Carthage call. You can use multiple options, separated by a space character.  To see available command's options, call `carthage help COMMAND`   Format example: `--platform ios` |  |  |
-| `github_access_token` | Use this input to avoid Github rate limit issues.  See the github's guide: [Creating an access token for command-line use](https://help.github.com/articles/creating-an-access-token-for-command-line-use/),    how to create Personal Access Token.  __UNCHECK EVERY SCOPE BOX__ when creating this token. There is no reason this token needs access to private information. | sensitive | `$GITHUB_ACCESS_TOKEN` |
+| `carthage_options` | Options added to the end of the Carthage call. You can use multiple options, separated by a space character.  To see available command's options, call `carthage help COMMAND`  Format example: `--platform ios` |  |  |
+| `github_access_token` | Use this input to avoid Github rate limit issues.  See the github's guide: [Creating an access token for command-line use](https://help.github.com/articles/creating-an-access-token-for-command-line-use/), how to create Personal Access Token.  __UNCHECK EVERY SCOPE BOX__ when creating this token. There is no reason this token needs access to private information. | sensitive | `$GITHUB_ACCESS_TOKEN` |
 | `xcconfig` | Use this input to provide an `xcconfig` file as a workaround for the Xcode 12 issue. For more information, see [the Github issue](https://github.com/Carthage/Carthage/issues/3019).  Can either be a local file provided with the `file://` scheme (like `file://path/to/file.xcconfig`) or an URL (like https://domain.com/file.xconfig). |  |  |
 | `verbose_log` | Enable verbose logging? | required | `no` |
 </details>
@@ -58,11 +58,10 @@ There are no outputs defined in this step
 
 We welcome [pull requests](https://github.com/bitrise-steplib/steps-carthage/pulls) and [issues](https://github.com/bitrise-steplib/steps-carthage/issues) against this repository.
 
-For pull requests, work on your changes in a forked repository and use the Bitrise CLI to [run step tests locally](https://devcenter.bitrise.io/bitrise-cli/run-your-first-build/).
+For pull requests, work on your changes in a forked repository and use the Bitrise CLI to [run step tests locally](https://docs.bitrise.io/en/bitrise-ci/bitrise-cli/running-your-first-local-build-with-the-cli.html).
 
 **Note:** this step's end-to-end tests (defined in `e2e/bitrise.yml`) are working with secrets which are intentionally not stored in this repo. External contributors won't be able to run those tests. Don't worry, if you open a PR with your contribution, we will help with running tests and make sure that they pass.
 
 Learn more about developing steps:
 
-- [Create your own step](https://devcenter.bitrise.io/contributors/create-your-own-step/)
-- [Testing your Step](https://devcenter.bitrise.io/contributors/testing-and-versioning-your-steps/)
+- [Create your own step](https://docs.bitrise.io/en/bitrise-ci/workflows-and-pipelines/developing-your-own-bitrise-step/developing-a-new-step.html)
