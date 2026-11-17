@@ -12,7 +12,7 @@ app:
   - SKIP_RUN: false
   - XC_VER: ""
   # Shared test secrets
-  - GITHUB_TOKEN: $GITHUB_TOKEN
+  - GITHUB_TOKEN: $GITHUB_TOKEN_STEP_SAMPLE_APPS
 
 workflows:
   test_without_xcconfig:
